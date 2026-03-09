@@ -103,6 +103,10 @@
                 scrollbar-gutter: stable;
             }
 
+            body.app-loading {
+                visibility: hidden;
+            }
+
             .header {
                 background: var(--primary);
                 color: #fff;
@@ -1770,7 +1774,7 @@
             }
         </style>
     </head>
-    <body>
+    <body class="app-loading">
         <!-- Header -->
         <div class="header">
             <h1>
@@ -2742,6 +2746,9 @@
                         }
                     }
                 } catch (e) {}
+
+                // Reveal page now that correct view is set (prevents FOUC)
+                document.body.classList.remove("app-loading");
             }
 
             // ============================================================
