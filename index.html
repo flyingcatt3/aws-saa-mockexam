@@ -3295,7 +3295,7 @@
                         return !d.isCorrect && !d.isUnanswered && !d.hasNoAnswer && (d.correctAnswers && d.correctAnswers.length > 0);
                     if (filter === "unanswered") return d.isUnanswered;
                     if (filter === "uncertain") return !!d.isUncertain;
-                    if (filter === "noanswer") return d.hasNoAnswer || (!d.correctAnswers || d.correctAnswers.length === 0);
+                    if (filter === "noanswer") return !d.isUnanswered && (d.hasNoAnswer || (!d.correctAnswers || d.correctAnswers.length === 0));
                     return true;
                 });
 
