@@ -2639,13 +2639,30 @@
             function loadPreferences() {
                 try {
                     var dark = localStorage.getItem("aws_dark");
-                    if (dark === "1") APP.dark = true;
+                    if (dark === "1") {
+                        APP.dark = true;
+                    } else if (dark === "0") {
+                        APP.dark = false;
+                    } else {
+                        // No saved preference — follow system setting
+                        APP.dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                    }
                     var lang = localStorage.getItem("aws_lang");
                     if (lang === "en") APP.lang = "en";
                 } catch (e) {}
                 applyTheme();
                 applyI18n();
                 updateLangButton();
+
+                // Auto-update if system preference changes and user hasn't manually set a preference
+                try {
+                    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+                        if (localStorage.getItem("aws_dark") === null) {
+                            APP.dark = e.matches;
+                            applyTheme();
+                        }
+                    });
+                } catch (e) {}
             }
 
             // ============================================================
