@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Bug Verification Tests</title>
+</head>
+<body>
+    <h1>Bug Verification Tests</h1>
+    <div id="results"></div>
+
+    <script>
+        const results = [];
+
+        // Test 1: Missing correctAnswers property
+        console.log("=== Test 1: Missing correctAnswers ===");
+        try {
+            const d = {
+                questionId: 1,
+                userAnswers: ["A"],
+                // correctAnswers is missing (legacy data)
+                hasNoAnswer: false,
+                isUnanswered: false,
+                isCorrect: false
+            };
+            
+            // This will throw TypeError
+            const isCorrectOpt = d.correctAnswers.includes("A");
+            results.push("❌ Test 1 FAILED: Should have thrown TypeError");
+        } catch (e) {
+            results.push("✅ Test 1 PASSED: TypeError thrown as expected - " + e.message);
+        }
+
+        // Test 2: Array mutation with sort()
+        console.log("=== Test 2: Array mutation ===");
+        const originalArray = ["C", "A", "B"];
+        const userAns = originalArray; // simulating: exam.answers[i]
+        const sorted = userAns.sort().join(",");
+        
+        if (originalArray[0] === "A") {
+            results.push("✅ Test 2 PASSED: Original array was mutated - " + JSON.stringify(originalArray));
+        } else {
+            results.push("❌ Test 2 FAILED: Array should have been mutated");
+        }
+
+        // Test 3: Textarea escapeHtml issue
+        console.log("=== Test 3: Textarea escaping ===");
+        function escapeHtml(text) {
+            const div = document.createElement("div");
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        const note = "<script>alert('xss')</script>";
+        const escaped = escapeHtml(note);
+        const textareaHTML = `<textarea>${escaped}</textarea>`;
+        
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = textareaHTML;
+        const textarea = tempDiv.querySelector("textarea");
+        const displayedValue = textarea.value;
+        
+        if (displayedValue === "&lt;script&gt;alert('xss')&lt;/script&gt;") {
+            results.push("✅ Test 3 PASSED: Textarea shows double-encoded text - " + displayedValue);
+        } else if (displayedValue === note) {
+            results.push("❌ Test 3 FAILED: Should show double-encoded text, but shows: " + displayedValue);
+        }
+
+        // Display results
+        document.getElementById("results").innerHTML = results.map(r => `<p>${r}</p>`).join("");
+    </script>
+</body>
+</html>

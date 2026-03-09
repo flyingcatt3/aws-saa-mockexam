@@ -3166,7 +3166,7 @@
                     const isCorrect =
                         correctAns.length > 0 &&
                         userAns.length === correctAns.length &&
-                        userAns.sort().join(",") ===
+                        [...userAns].sort().join(",") ===
                             [...correctAns].sort().join(",");
 
                     if (userAns.length === 0) {
@@ -3331,9 +3331,9 @@
                             .map(([letter, text]) => {
                                 const isUserPick =
                                     d.userAnswers.includes(letter);
-                                const isCorrectOpt =
-                                    d.correctAnswers.includes(letter);
                                 const noAnswer = d.hasNoAnswer || (!d.correctAnswers || d.correctAnswers.length === 0);
+                                const isCorrectOpt =
+                                    d.correctAnswers?.includes(letter) ?? false;
 
                                 let optClass = "option-item review-neutral";
                                 if (isCorrectOpt)
@@ -3393,7 +3393,7 @@
         <div class="review-note-editor" id="note-editor-${d.questionId}" style="display:none">
           <textarea class="note-textarea" id="note-textarea-${d.questionId}"
                     placeholder="${t("notePlaceholder")}"
-                    rows="4">${escapeHtml(existingNote)}</textarea>
+                    rows="4">${existingNote}</textarea>
           <div class="note-editor-actions">
             <button class="btn btn-primary btn-sm" onclick="saveNote('${d.questionId}')">${t("noteSave")}</button>
             <button class="btn btn-outline btn-sm" onclick="toggleNote('${d.questionId}')">${t("noteCancel")}</button>
