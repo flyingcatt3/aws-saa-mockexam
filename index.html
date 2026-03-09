@@ -2130,6 +2130,14 @@
                         >
                             ❓ 不確定
                         </button>
+                        <button
+                            class="filter-btn"
+                            data-filter="noanswer"
+                            onclick="filterReview('noanswer', this)"
+                            data-i18n="filterNoAnswer"
+                        >
+                            ➖ 無標準答案
+                        </button>
                     </div>
                     <div id="reviewList"></div>
                 </div>
@@ -2302,6 +2310,7 @@
                     filterCorrect: "✅ 答對",
                     filterUnanswered: "⬜ 未作答",
                     filterUncertain: "❓ 不確定",
+                    filterNoAnswer: "➖ 無標準答案",
                     modalSubmitTitle: "確定要交卷嗎？",
                     modalSubmitMsgPartial:
                         "您還有 {n} 題尚未作答，確定要提前交卷嗎？",
@@ -2420,6 +2429,7 @@
                     filterCorrect: "✅ Correct",
                     filterUnanswered: "⬜ Unanswered",
                     filterUncertain: "❓ Uncertain",
+                    filterNoAnswer: "➖ No Official Answer",
                     modalSubmitTitle: "Submit Exam?",
                     modalSubmitMsgPartial:
                         "You have {n} unanswered question(s). Submit anyway?",
@@ -3285,6 +3295,7 @@
                         return !d.isCorrect && !d.isUnanswered && !d.hasNoAnswer && (d.correctAnswers && d.correctAnswers.length > 0);
                     if (filter === "unanswered") return d.isUnanswered;
                     if (filter === "uncertain") return !!d.isUncertain;
+                    if (filter === "noanswer") return d.hasNoAnswer || (!d.correctAnswers || d.correctAnswers.length === 0);
                     return true;
                 });
 
