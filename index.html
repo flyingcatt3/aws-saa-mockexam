@@ -1504,7 +1504,7 @@
                 background: rgba(255, 255, 255, 0.1);
                 border: 1px solid rgba(255, 255, 255, 0.25);
                 color: #fff;
-                padding: 5px 12px;
+                padding: 0 12px;
                 border-radius: 20px;
                 cursor: pointer;
                 font-size: 13px;
@@ -1513,7 +1513,11 @@
                 white-space: nowrap;
                 display: flex;
                 align-items: center;
+                justify-content: center;
                 gap: 5px;
+                min-width: 56px;
+                height: 30px;
+                line-height: 1;
             }
 
             .toggle-btn:hover {
@@ -2578,6 +2582,16 @@
                     renderExamQuestion();
                 }
                 if (APP.currentView === "viewResult") {
+                    // Preserve any open, unsaved note editors before re-render
+                    const openEditors = {};
+                    document.querySelectorAll(".review-note-editor").forEach(el => {
+                        if (el.style.display !== "none") {
+                            const qid = el.id.replace("note-editor-", "");
+                            const ta = document.getElementById("note-textarea-" + qid);
+                            if (ta) openEditors[qid] = ta.value;
+                        }
+                    });
+
                     // Find the result data to re-render
                     let result = null;
                     if (APP.reviewingExamId) {
@@ -2590,6 +2604,16 @@
                     if (result) {
                         renderResultView(result);
                     }
+
+                    // Restore open editors with their unsaved content
+                    Object.entries(openEditors).forEach(([qid, val]) => {
+                        const editor = document.getElementById("note-editor-" + qid);
+                        const ta = document.getElementById("note-textarea-" + qid);
+                        if (editor && ta) {
+                            editor.style.display = "block";
+                            ta.value = val;
+                        }
+                    });
                 }
                 try {
                     localStorage.setItem("aws_lang", APP.lang);
