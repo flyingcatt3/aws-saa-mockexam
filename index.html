@@ -1287,6 +1287,37 @@
 
             .modal-overlay.open {
                 display: flex;
+                animation: overlayFadeIn 0.2s ease;
+            }
+
+            .modal-overlay.open .modal {
+                animation: modalPopIn 0.2s ease;
+            }
+
+            .modal-overlay.closing {
+                display: flex;
+                animation: overlayFadeOut 0.18s ease forwards;
+            }
+
+            .modal-overlay.closing .modal {
+                animation: modalPopOut 0.18s ease forwards;
+            }
+
+            @keyframes overlayFadeIn {
+                from { opacity: 0; }
+                to   { opacity: 1; }
+            }
+            @keyframes overlayFadeOut {
+                from { opacity: 1; }
+                to   { opacity: 0; }
+            }
+            @keyframes modalPopIn {
+                from { opacity: 0; transform: scale(0.94) translateY(-12px); }
+                to   { opacity: 1; transform: scale(1)    translateY(0);     }
+            }
+            @keyframes modalPopOut {
+                from { opacity: 1; transform: scale(1)    translateY(0);     }
+                to   { opacity: 0; transform: scale(0.94) translateY(-12px); }
             }
 
             .modal {
@@ -3206,13 +3237,22 @@
                 }
             }
 
+            function closeModalAnimated(id, callback) {
+                const overlay = document.getElementById(id);
+                if (!overlay) return;
+                overlay.classList.add("closing");
+                setTimeout(() => {
+                    overlay.classList.remove("open", "closing");
+                    if (callback) callback();
+                }, 180);
+            }
+
             function timeUp() {
                 document.getElementById("timeUpModal").classList.add("open");
             }
 
             function forceSubmit() {
-                document.getElementById("timeUpModal").classList.remove("open");
-                submitExam();
+                closeModalAnimated("timeUpModal", submitExam);
             }
 
             // ============================================================
@@ -3235,7 +3275,7 @@
             }
 
             function closeSubmitModal() {
-                document.getElementById("submitModal").classList.remove("open");
+                closeModalAnimated("submitModal");
             }
 
             function submitExam() {
@@ -3773,7 +3813,7 @@
 
             function closeScoringModal(e) {
                 if (e && e.target !== document.getElementById("scoringModal")) return;
-                document.getElementById("scoringModal").classList.remove("open");
+                closeModalAnimated("scoringModal");
             }
 
             function buildScoringContent() {
