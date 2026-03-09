@@ -1241,6 +1241,89 @@
                 outline-offset: -2px;
             }
 
+            .review-item.bookmarked-item {
+                box-shadow: 0 0 0 2px var(--accent), 0 1px 3px rgba(0,0,0,0.08);
+            }
+
+            @keyframes bookmarkPulse {
+                0%   { box-shadow: 0 0 0 2px var(--accent), 0 1px 3px rgba(0,0,0,0.08); }
+                50%  { box-shadow: 0 0 0 7px rgba(255,153,0,0.25), 0 1px 3px rgba(0,0,0,0.08); }
+                100% { box-shadow: 0 0 0 2px var(--accent), 0 1px 3px rgba(0,0,0,0.08); }
+            }
+            .review-item.bookmark-pulse {
+                animation: bookmarkPulse 0.55s ease 2;
+            }
+
+            .btn-bookmark {
+                background: none;
+                border: 1px solid var(--border);
+                color: var(--text-light);
+                font-size: 13px;
+                padding: 5px 12px;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: all 0.15s;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                flex-shrink: 0;
+                white-space: nowrap;
+            }
+            .btn-bookmark:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+                background: rgba(255, 153, 0, 0.06);
+            }
+            .btn-bookmark.active {
+                border-color: var(--accent);
+                color: #fff;
+                background: var(--accent);
+                font-weight: 600;
+            }
+            .btn-bookmark.active:hover {
+                background: var(--accent-hover);
+                border-color: var(--accent-hover);
+            }
+            [data-theme="dark"] .btn-bookmark.active {
+                color: var(--primary);
+            }
+
+            .bookmark-fab {
+                position: fixed;
+                bottom: 28px;
+                right: 28px;
+                z-index: 200;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: var(--accent);
+                color: var(--primary);
+                border: none;
+                width: 52px;
+                height: 52px;
+                border-radius: 50%;
+                font-size: 22px;
+                cursor: pointer;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+                opacity: 0;
+                transform: translateY(10px) scale(0.9);
+                pointer-events: none;
+                transition: opacity 0.25s, transform 0.25s, box-shadow 0.15s;
+            }
+            .bookmark-fab.visible {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                pointer-events: auto;
+            }
+            .bookmark-fab:hover {
+                transform: translateY(-2px) scale(1.08);
+                box-shadow: 0 6px 22px rgba(0,0,0,0.3);
+            }
+            [data-theme="dark"] .bookmark-fab {
+                background: #cc7a00;
+                color: #fff;
+            }
+
             .review-item .review-header {
                 display: flex;
                 justify-content: space-between;
@@ -2107,6 +2190,9 @@
 
         <!-- Result View -->
         <div class="view" id="viewResult">
+            <button class="bookmark-fab" id="bookmarkFab" onclick="jumpToBookmark()" data-i18n-title="bookmarkJump" title="跳至書籤位置">
+                🔖
+            </button>
             <div class="container">
                 <div class="result-hero" id="resultHero">
                     <div class="score-circle" id="scoreCircle">
@@ -2395,6 +2481,11 @@
                     notePlaceholder: "在此輸入筆記（將自動以題目 ID 儲存）…",
                     noteLabel: "我的筆記",
                     mdNoteTitle: "筆記",
+                    bookmarkSet: "🔖 設為書籤",
+                    bookmarkAdded: "🔖 已設書籤",
+                    bookmarkRemove: "移除書籤",
+                    bookmarkJump: "📍 跳至書籤位置",
+                    bookmarkTip: "每次考試只能設定一個書籤，點擊已書籤的題目可移除",
                     historyBadgePass: "✅ 通過",
                     historyBadgeFail: "❌ 未通過",
                     historyBtnView: "查看",
@@ -2517,6 +2608,11 @@
                     notePlaceholder: "Enter your note here (saved by question ID)…",
                     noteLabel: "My Note",
                     mdNoteTitle: "Note",
+                    bookmarkSet: "🔖 Bookmark",
+                    bookmarkAdded: "🔖 Bookmarked",
+                    bookmarkRemove: "Remove bookmark",
+                    bookmarkJump: "📍 Jump to bookmark",
+                    bookmarkTip: "One bookmark per exam — click again to remove",
                     historyBadgePass: "✅ Pass",
                     historyBadgeFail: "❌ Fail",
                     historyBtnView: "View",
@@ -2575,6 +2671,7 @@
                 dark: false,
                 eslEnabled: false,
                 notes: {},
+                bookmarks: {},
             };
 
             // ============================================================
@@ -2735,6 +2832,7 @@
             function init() {
                 loadHistory();
                 loadNotes();
+                loadBookmarks();
                 loadPreferences();
 
                 // Filter to only questions with answers and valid options (mutate in-place to avoid reassigning const)
@@ -2805,6 +2903,16 @@
                 } else {
                     homeBtn.style.display = "flex";
                     timerC.style.display = "none";
+                }
+
+                // Hide bookmark FAB when not on result view
+                const fab = document.getElementById("bookmarkFab");
+                if (viewId !== "viewResult") {
+                    if (_bookmarkScrollHandler) {
+                        window.removeEventListener("scroll", _bookmarkScrollHandler);
+                        _bookmarkScrollHandler = null;
+                    }
+                    if (fab) fab.classList.remove("visible");
                 }
 
                 // Persist view so reload can restore it (only viewResult is restorable)
@@ -3436,6 +3544,15 @@
                     return;
                 }
 
+                const examId = APP._currentResultId;
+                const bookmarkedQId = APP.bookmarks[examId] || null;
+
+                // Update FAB visibility (no layout shift)
+                const fab = document.getElementById("bookmarkFab");
+                if (fab) fab.classList.toggle("visible", !!bookmarkedQId);
+                // Set up IntersectionObserver — hide FAB when bookmark is on screen
+                setupBookmarkFabObserver(bookmarkedQId);
+
                 list.innerHTML = filtered
                     .map((d, i) => {
                         let itemClass = "review-item ";
@@ -3458,6 +3575,12 @@
                             itemClass += " uncertain-item";
                             statusBadge += ` <span class="badge badge-uncertain">${t("reviewBadgeUncertain")}</span>`;
                         }
+                        const isBookmarked = bookmarkedQId !== null && String(bookmarkedQId) === String(d.questionId);
+                        if (isBookmarked) itemClass += " bookmarked-item";
+                        const bookmarkBtn = `<button class="btn-bookmark${isBookmarked ? " active" : ""}"
+                            onclick="toggleBookmark('${examId}','${d.questionId}')"
+                            title="${t("bookmarkTip")}">
+                            ${isBookmarked ? t("bookmarkAdded") : t("bookmarkSet")}</button>`;
 
                         const optionsHtml = Object.entries(d.options)
                             .map(([letter, text]) => {
@@ -3534,10 +3657,13 @@
         </div>
       </div>`;
 
-                        return `<div class="${itemClass}">
+                        return `<div class="${itemClass}" id="review-item-${d.questionId}">
       <div class="review-header">
         <span class="review-q-num">Question #${d.questionId}${multiHint}</span>
-        ${statusBadge}
+        <div style="display:flex;align-items:center;gap:8px;">
+          ${statusBadge}
+          ${bookmarkBtn}
+        </div>
       </div>
       <div class="question-text" style="font-size:14px;margin-bottom:16px;">${escapeHtml(d.question)}</div>
       <div class="options-list" style="gap:8px;">
@@ -3926,6 +4052,71 @@
             // ============================================================
             // NOTES
             // ============================================================
+            function loadBookmarks() {
+                try {
+                    const data = localStorage.getItem("aws_saa_bookmarks");
+                    if (data) APP.bookmarks = JSON.parse(data);
+                } catch (e) {
+                    APP.bookmarks = {};
+                }
+            }
+
+            function saveBookmarks() {
+                try {
+                    localStorage.setItem("aws_saa_bookmarks", JSON.stringify(APP.bookmarks));
+                } catch (e) {}
+            }
+
+            let _bookmarkScrollHandler = null;
+
+            function setupBookmarkFabObserver(qId) {
+                if (_bookmarkScrollHandler) {
+                    window.removeEventListener("scroll", _bookmarkScrollHandler);
+                    _bookmarkScrollHandler = null;
+                }
+                const fab = document.getElementById("bookmarkFab");
+                if (!qId || !fab) { if (fab) fab.classList.remove("visible"); return; }
+
+                function updateFabVisibility() {
+                    const el = document.getElementById("review-item-" + qId);
+                    if (!el) { fab.classList.add("visible"); return; }
+                    const rect = el.getBoundingClientRect();
+                    const onScreen = rect.top < window.innerHeight * 0.85 && rect.bottom > window.innerHeight * 0.15;
+                    fab.classList.toggle("visible", !onScreen);
+                }
+
+                _bookmarkScrollHandler = updateFabVisibility;
+                window.addEventListener("scroll", _bookmarkScrollHandler, { passive: true });
+                requestAnimationFrame(updateFabVisibility); // initial check after paint
+            }
+
+            function toggleBookmark(examId, questionId) {
+                if (APP.bookmarks[examId] === questionId) {
+                    delete APP.bookmarks[examId];
+                } else {
+                    APP.bookmarks[examId] = questionId;
+                }
+                saveBookmarks();
+                const result = APP.history.find((h) => h.id === examId);
+                if (result) {
+                    const activeBtn = document.querySelector(".filter-btn.active");
+                    const filter = activeBtn ? activeBtn.dataset.filter : "all";
+                    renderReviewList(result.details, filter);
+                }
+            }
+
+            function jumpToBookmark() {
+                const qId = APP.bookmarks[APP._currentResultId];
+                if (!qId) return;
+                const el = document.getElementById("review-item-" + qId);
+                if (!el) return;
+                el.scrollIntoView({ behavior: "smooth", block: "center" });
+                el.classList.remove("bookmark-pulse");
+                void el.offsetWidth; // force reflow to restart animation
+                el.classList.add("bookmark-pulse");
+                setTimeout(() => el.classList.remove("bookmark-pulse"), 1200);
+            }
+
             function loadNotes() {
                 try {
                     const data = localStorage.getItem("aws_saa_notes");
