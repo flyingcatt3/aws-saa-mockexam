@@ -1,0 +1,3929 @@
+<!doctype html>
+<html lang="zh-TW">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>AWS SAA-C03 模擬考系統</title>
+        <style>
+            :root {
+                --primary: #232f3e;
+                --primary-light: #37475a;
+                --accent: #ff9900;
+                --accent-hover: #ec7211;
+                --success: #1b9c3f;
+                --danger: #d13212;
+                --warning: #ff9900;
+                --bg: #f2f3f3;
+                --card-bg: #ffffff;
+                --text: #16191f;
+                --text-light: #687078;
+                --border: #d5dbdb;
+                --correct-bg: #e6f7ed;
+                --wrong-bg: #fce9e6;
+                --correct-border: #1b9c3f;
+                --wrong-border: #d13212;
+                --modal-bg: #ffffff;
+                --input-bg: rgba(255, 255, 255, 0.1);
+                --review-item-bg: #ffffff;
+                --review-item-border: #e8eaed;
+                --explanation-bg: #f0f4ff;
+                --explanation-border: #dee2e6;
+                --explanation-accent: #5b7ec7;
+                --explanation-title-color: #3d5a99;
+                --stat-card-bg: #ffffff;
+                --stat-card-border: #e8eaed;
+                --history-header-bg: #f8f9fa;
+                --history-row-hover: #f8f9fa;
+                --grid-panel-bg: #ffffff;
+                --option-hover-bg: #f8f9fa;
+                --option-selected-bg: #fff3e0;
+                --option-selected-border: #ff9900;
+            }
+
+            [data-theme="dark"] {
+                --primary: #0f1923;
+                --primary-light: #1a2a3a;
+                --accent: #ff9900;
+                --accent-hover: #ec7211;
+                --success: #2ecc71;
+                --danger: #e74c3c;
+                --warning: #ff9900;
+                --bg: #0d1117;
+                --card-bg: #161b22;
+                --text: #e6edf3;
+                --text-light: #8b949e;
+                --border: #30363d;
+                --correct-bg: #0d2818;
+                --wrong-bg: #2d0f0f;
+                --correct-border: #2ecc71;
+                --wrong-border: #e74c3c;
+                --modal-bg: #1c2128;
+                --input-bg: rgba(255, 255, 255, 0.08);
+                --review-item-bg: #161b22;
+                --review-item-border: #30363d;
+                --explanation-bg: #0d1525;
+                --explanation-border: #30363d;
+                --explanation-accent: #79a8d4;
+                --explanation-title-color: #79a8d4;
+                --stat-card-bg: #161b22;
+                --stat-card-border: #30363d;
+                --history-header-bg: #1c2128;
+                --history-row-hover: #1c2128;
+                --grid-panel-bg: #161b22;
+                --option-hover-bg: #1c2128;
+                --option-selected-bg: #2a1f00;
+                --option-selected-border: #ff9900;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family:
+                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                    "Helvetica Neue", Arial, sans-serif;
+                background: var(--bg);
+                color: var(--text);
+                min-height: 100vh;
+                transition:
+                    background 0.3s,
+                    color 0.3s;
+            }
+
+            .header {
+                background: var(--primary);
+                color: #fff;
+                padding: 0 24px;
+                height: 56px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            }
+
+            .header h1 {
+                font-size: 18px;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .header h1 .aws-logo {
+                background: var(--accent);
+                color: var(--primary);
+                padding: 2px 8px;
+                border-radius: 4px;
+                font-weight: 800;
+                font-size: 14px;
+            }
+
+            .header-actions {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+            }
+
+            .timer-display {
+                font-size: 20px;
+                font-weight: 700;
+                font-family: "Courier New", monospace;
+                color: var(--accent);
+                background: rgba(255, 255, 255, 0.1);
+                padding: 4px 16px;
+                border-radius: 6px;
+                min-width: 100px;
+                text-align: center;
+            }
+
+            .timer-display.warning {
+                color: #ff4444;
+                animation: pulse 1s infinite;
+            }
+
+            @keyframes pulse {
+                0%,
+                100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.5;
+                }
+            }
+
+            .container {
+                max-width: 1100px;
+                margin: 0 auto;
+                padding: 24px;
+            }
+
+            .view {
+                display: none;
+            }
+            .view.active {
+                display: block;
+            }
+
+            /* Dashboard */
+            .dashboard-hero {
+                background: linear-gradient(
+                    135deg,
+                    var(--primary) 0%,
+                    var(--primary-light) 100%
+                );
+                border-radius: 12px;
+                padding: 40px;
+                color: #fff;
+                margin-bottom: 24px;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .dashboard-hero::after {
+                content: "";
+                position: absolute;
+                top: -50%;
+                right: -10%;
+                width: 300px;
+                height: 300px;
+                background: rgba(255, 153, 0, 0.1);
+                border-radius: 50%;
+            }
+
+            .dashboard-hero h2 {
+                font-size: 28px;
+                margin-bottom: 8px;
+            }
+
+            .dashboard-hero p {
+                color: #adb5bd;
+                margin-bottom: 24px;
+                font-size: 15px;
+            }
+
+            .exam-config {
+                display: flex;
+                gap: 16px;
+                align-items: flex-end;
+                flex-wrap: wrap;
+            }
+
+            .config-group {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .config-group label {
+                font-size: 13px;
+                color: #adb5bd;
+                font-weight: 500;
+            }
+
+            .config-group select,
+            .config-group input {
+                padding: 10px 14px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 8px;
+                background: rgba(255, 255, 255, 0.1);
+                color: #fff;
+                font-size: 14px;
+                outline: none;
+                min-width: 140px;
+            }
+
+            .config-group select option {
+                color: #000;
+                background: #fff;
+            }
+
+            .btn {
+                padding: 10px 24px;
+                border: none;
+                border-radius: 8px;
+                font-size: 15px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                text-decoration: none;
+            }
+
+            .btn:active {
+                transform: scale(0.97);
+            }
+
+            .btn-primary {
+                background: var(--accent);
+                color: var(--primary);
+            }
+
+            .btn-primary:hover {
+                background: var(--accent-hover);
+            }
+
+            .btn-secondary {
+                background: rgba(255, 255, 255, 0.15);
+                color: #fff;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+
+            .btn-secondary:hover {
+                background: rgba(255, 255, 255, 0.25);
+            }
+
+            .btn-outline {
+                background: transparent;
+                color: var(--primary);
+                border: 2px solid var(--border);
+            }
+
+            .btn-outline:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+            .btn-danger {
+                background: var(--danger);
+                color: #fff;
+            }
+
+            .btn-danger:hover {
+                background: #b42a0f;
+            }
+
+            .btn-success {
+                background: var(--success);
+                color: #fff;
+            }
+
+            .btn-success:hover {
+                background: #158232;
+            }
+
+            /* Uncertain Mark Button */
+            .btn-uncertain-toggle {                background: rgba(245,158,11,0.12);
+                border: 2px solid #f59e0b;
+                color: #b45309;
+                padding: 8px 18px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .btn-uncertain-toggle:hover {
+                background: rgba(245,158,11,0.22);
+            }
+            .btn-uncertain-toggle.marked {
+                background: #f59e0b;
+                color: #fff;
+                border-color: #d97706;
+            }
+            .btn-uncertain-toggle.marked:hover {
+                background: #d97706;
+            }
+            [data-theme="dark"] .btn-uncertain-toggle {
+                color: #fbbf24;
+                background: rgba(245,158,11,0.1);
+            }
+            [data-theme="dark"] .btn-uncertain-toggle.marked {
+                background: #b45309;
+                color: #fff;
+                border-color: #92400e;
+            }
+
+            /* Uncertain badge */
+            .badge-uncertain {
+                background: #fef3c7;
+                color: #92400e;
+                border: 1px solid #f59e0b;
+            }
+            [data-theme="dark"] .badge-uncertain {
+                background: #2a1800;
+                color: #fbbf24;
+                border-color: #92400e;
+            }
+
+            /* ── Per-question Notes ── */
+            .review-note-section {
+                margin-top: 14px;
+                border-top: 1px dashed var(--border);
+                padding-top: 12px;
+            }
+
+            .btn-note-toggle {
+                background: none;
+                border: 1px solid var(--border);
+                color: var(--text-light);
+                font-size: 13px;
+                padding: 5px 12px;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: all 0.15s;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+            }
+            .btn-note-toggle:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+                background: rgba(255,153,0,0.06);
+            }
+            .btn-note-toggle.has-note {
+                border-color: #3b82f6;
+                color: #2563eb;
+                background: rgba(59,130,246,0.07);
+            }
+            [data-theme="dark"] .btn-note-toggle.has-note {
+                border-color: #60a5fa;
+                color: #93c5fd;
+                background: rgba(59,130,246,0.1);
+            }
+
+            .review-note-preview {
+                margin-top: 10px;
+                background: rgba(59,130,246,0.07);
+                border-left: 3px solid #3b82f6;
+                border-radius: 0 6px 6px 0;
+                padding: 10px 14px;
+                font-size: 13px;
+                line-height: 1.65;
+                color: var(--text);
+                white-space: pre-wrap;
+                word-break: break-word;
+            }
+            [data-theme="dark"] .review-note-preview {
+                background: rgba(59,130,246,0.1);
+                border-left-color: #60a5fa;
+            }
+            .review-note-preview .note-preview-label {
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                color: #2563eb;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 4px;
+            }
+            [data-theme="dark"] .review-note-preview .note-preview-label {
+                color: #93c5fd;
+            }
+
+            .review-note-editor {
+                margin-top: 10px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            .note-textarea {
+                width: 100%;
+                min-height: 90px;
+                padding: 10px 12px;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                background: var(--card-bg);
+                color: var(--text);
+                font-size: 14px;
+                font-family: inherit;
+                line-height: 1.6;
+                resize: vertical;
+                outline: none;
+                transition: border-color 0.15s;
+            }
+            .note-textarea:focus {
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 2px rgba(59,130,246,0.15);
+            }
+            [data-theme="dark"] .note-textarea {
+                background: #0d1117;
+                border-color: var(--border);
+                color: var(--text);
+            }
+            .note-editor-actions {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
+            .btn-note-delete {
+                background: none;
+                border: none;
+                color: var(--danger);
+                cursor: pointer;
+                font-size: 12px;
+                margin-left: auto;
+                padding: 4px 8px;
+                border-radius: 4px;
+                transition: background 0.15s;
+            }
+            .btn-note-delete:hover {
+                background: var(--wrong-bg);
+            }
+
+            /* ── Safety Score Bar ── */
+            .safety-section {
+                margin-top: 28px;
+                padding-top: 22px;
+                border-top: 1px solid var(--border);
+            }
+            .safety-section-title {
+                font-size: 12px;
+                font-weight: 700;
+                color: var(--text-light);
+                text-transform: uppercase;
+                letter-spacing: 0.6px;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+            .safety-bar-wrap {
+                position: relative;
+                max-width: 520px;
+                margin: 0 auto 10px;
+            }
+            .safety-bar-track {
+                height: 18px;
+                border-radius: 9px;
+                background: linear-gradient(to right,
+                    #ef4444 0%, #ef4444 72%,
+                    #f59e0b 72%, #f59e0b 80%,
+                    #86efac 80%, #86efac 85%,
+                    #22c55e 85%, #22c55e 100%
+                );
+                position: relative;
+                overflow: visible;
+            }
+            .safety-threshold-line {
+                position: absolute;
+                top: 0; height: 100%; width: 2px;
+                background: rgba(255,255,255,0.65);
+                pointer-events: none;
+            }
+            .safety-bar-marker {
+                position: absolute;
+                top: -10px;
+                transform: translateX(-50%);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                z-index: 2;
+                pointer-events: none;
+            }
+            .safety-bar-marker-label {
+                background: #1e293b;
+                color: #fff;
+                padding: 2px 7px;
+                border-radius: 4px;
+                font-size: 11px;
+                font-weight: 700;
+                white-space: nowrap;
+                margin-bottom: 3px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+            }
+            [data-theme="dark"] .safety-bar-marker-label { background:#e2e8f0; color:#0f172a; }
+            .safety-bar-marker-arrow {
+                width:0; height:0;
+                border-left:6px solid transparent;
+                border-right:6px solid transparent;
+                border-top:8px solid #1e293b;
+            }
+            [data-theme="dark"] .safety-bar-marker-arrow { border-top-color:#e2e8f0; }
+            .safety-bar-ticks {
+                position: relative;
+                height: 20px;
+                margin-top: 5px;
+            }
+            .safety-bar-tick {
+                position: absolute;
+                font-size: 10px;
+                color: var(--text-light);
+                transform: translateX(-50%);
+                font-weight: 600;
+                white-space: nowrap;
+                top: 0;
+            }
+            .safety-zone-legend {
+                display: flex;
+                justify-content: center;
+                gap: 14px;
+                margin: 6px 0 14px;
+                flex-wrap: wrap;
+            }
+            .safety-zone-legend-item {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-size: 11px;
+                color: var(--text-light);
+            }
+            .safety-zone-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+            .safety-level-badge {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                padding: 12px 20px;
+                border-radius: 10px;
+                font-size: 14px;
+                font-weight: 600;
+                max-width: 520px;
+                margin: 0 auto;
+                line-height: 1.55;
+                text-align: center;
+            }
+            .safety-level-badge.level-fail    { background:rgba(239,68,68,.10);  border:1px solid rgba(239,68,68,.4);  color:#dc2626; }
+            .safety-level-badge.level-pass    { background:rgba(245,158,11,.10); border:1px solid rgba(245,158,11,.4); color:#b45309; }
+            .safety-level-badge.level-safe    { background:rgba(34,197,94,.10);  border:1px solid rgba(34,197,94,.4);  color:#16a34a; }
+            .safety-level-badge.level-excellent { background:rgba(22,163,74,.14); border:1px solid rgba(22,163,74,.5); color:#15803d; }
+            [data-theme="dark"] .safety-level-badge.level-fail    { background:rgba(239,68,68,.15);  color:#fca5a5; }
+            [data-theme="dark"] .safety-level-badge.level-pass    { background:rgba(245,158,11,.12); color:#fbbf24; }
+            [data-theme="dark"] .safety-level-badge.level-safe    { background:rgba(34,197,94,.12);  color:#4ade80; }
+            [data-theme="dark"] .safety-level-badge.level-excellent { background:rgba(22,163,74,.15); color:#4ade80; }
+
+            /* ── Scoring Info Modal ── */
+            .modal.modal-wide {
+                max-width: 780px;
+                width: 94%;
+                text-align: left;
+                max-height: 90vh;
+                overflow-y: auto;
+                padding: 24px 28px 20px;
+            }
+            .modal.modal-wide .modal-wide-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 16px;
+                position: sticky;
+                top: -24px;
+                background: var(--card-bg);
+                padding-top: 4px;
+                z-index: 1;
+            }
+            .modal-wide-header h3 { margin:0; font-size:18px; }
+            .modal-close-x {
+                background:none; border:none; font-size:22px; cursor:pointer;
+                color:var(--text-light); padding:2px 6px; border-radius:4px; line-height:1;
+                transition: background 0.15s;
+            }
+            .modal-close-x:hover { background:var(--bg); }
+            .scoring-info-list {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            @media (max-width: 560px) {
+                .scoring-info-list { grid-template-columns: 1fr; }
+            }
+            .scoring-info-item {
+                display:flex; gap:10px; align-items:flex-start;
+                padding:11px 13px;
+                background:var(--bg);
+                border-radius:8px;
+                border:1px solid var(--border);
+            }
+            .scoring-info-item.highlight {
+                grid-column: 1 / -1;
+                background:rgba(34,197,94,0.07);
+                border-color:rgba(34,197,94,0.35);
+            }
+            [data-theme="dark"] .scoring-info-item.highlight { background:rgba(34,197,94,0.08); border-color:rgba(34,197,94,0.25); }
+            .scoring-info-icon { font-size:22px; flex-shrink:0; line-height:1; margin-top:1px; }
+            .scoring-info-title { font-weight:700; font-size:14px; margin-bottom:3px; color:var(--text); }
+            .scoring-info-desc { font-size:13px; color:var(--text-light); line-height:1.65; }
+            .scoring-info-desc strong { color:var(--text); }
+            .scoring-modal-footer {
+                margin-top:14px; font-size:11px; color:var(--text-light);
+                text-align:center; padding-top:12px; border-top:1px solid var(--border);
+            }
+
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 16px;
+                margin-bottom: 24px;
+            }
+
+            .stat-card {
+                background: var(--stat-card-bg);
+                border-radius: 12px;
+                padding: 20px;
+                text-align: center;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+                border: 1px solid var(--stat-card-border);
+            }
+
+            .stat-card .stat-label {
+                font-size: 13px;
+                color: var(--text-light);
+                margin-bottom: 8px;
+                font-weight: 500;
+            }
+
+            .stat-card .stat-value {
+                font-size: 28px;
+                font-weight: 700;
+                color: var(--primary);
+            }
+
+            [data-theme="dark"] .stat-card .stat-value {
+                color: var(--text);
+            }
+
+            .stat-card .stat-value.pass {
+                color: var(--success);
+            }
+            .stat-card .stat-value.fail {
+                color: var(--danger);
+            }
+
+            .section-title {
+                font-size: 20px;
+                font-weight: 700;
+                margin-bottom: 16px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .history-table {
+                width: 100%;
+                background: var(--card-bg);
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+                border: 1px solid var(--border);
+            }
+
+            .history-table table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .history-table th {
+                background: var(--primary);
+                color: #fff;
+                padding: 14px 16px;
+                text-align: left;
+                font-size: 13px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .history-table td {
+                padding: 14px 16px;
+                border-bottom: 1px solid var(--border);
+                font-size: 14px;
+            }
+
+            .history-table tr:last-child td {
+                border-bottom: none;
+            }
+            .history-table tbody tr:hover {
+                background: var(--history-row-hover);
+            }
+
+            .badge {
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 700;
+                text-transform: uppercase;
+            }
+
+            .badge-pass {
+                background: var(--correct-bg);
+                color: var(--success);
+            }
+            .badge-fail {
+                background: var(--wrong-bg);
+                color: var(--danger);
+            }
+
+            .btn-sm {
+                padding: 6px 14px;
+                font-size: 13px;
+                border-radius: 6px;
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 60px 20px;
+                color: var(--text-light);
+            }
+
+            .empty-state .empty-icon {
+                font-size: 48px;
+                margin-bottom: 16px;
+            }
+
+            .empty-state p {
+                font-size: 15px;
+            }
+
+            /* Exam View */
+            .exam-progress-bar {
+                background: var(--border);
+                height: 4px;
+                border-radius: 2px;
+                margin-bottom: 20px;
+                overflow: hidden;
+            }
+
+            .exam-progress-bar .fill {
+                height: 100%;
+                background: var(--accent);
+                border-radius: 2px;
+                transition: width 0.3s;
+            }
+
+            .exam-info-bar {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .exam-info-bar .question-counter {
+                font-size: 15px;
+                color: var(--text-light);
+                font-weight: 500;
+            }
+
+            .exam-info-bar .question-counter strong {
+                color: var(--text);
+                font-size: 18px;
+            }
+
+            .question-card {
+                background: var(--card-bg);
+                border-radius: 12px;
+                padding: 32px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+                border: 1px solid var(--border);
+                margin-bottom: 20px;
+            }
+
+            .question-card .question-badge {
+                display: inline-block;
+                background: var(--primary);
+                color: #fff;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 600;
+                margin-bottom: 16px;
+            }
+
+            .question-card .multi-badge {
+                background: var(--accent);
+                color: var(--primary);
+                margin-left: 8px;
+            }
+
+            .question-text {
+                font-size: 16px;
+                line-height: 1.7;
+                margin-bottom: 24px;
+                color: var(--text);
+            }
+
+            .options-list {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .option-item {
+                display: flex;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 14px 16px;
+                border: 2px solid var(--border);
+                border-radius: 10px;
+                cursor: pointer;
+                transition: all 0.15s;
+                background: var(--card-bg);
+            }
+
+            .option-item:hover {
+                border-color: var(--accent);
+                background: var(--option-hover-bg);
+            }
+
+            .option-item.selected {
+                border-color: var(--option-selected-border);
+                background: var(--option-selected-bg);
+            }
+
+            .option-item .option-letter {
+                flex-shrink: 0;
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                background: var(--bg);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                font-size: 13px;
+                color: var(--text-light);
+                margin-top: 1px;
+            }
+
+            .option-item.selected .option-letter {
+                background: var(--accent);
+                color: #fff;
+            }
+
+            /* Review mode option styles */
+            .option-item.correct {
+                border-color: var(--correct-border);
+                background: var(--correct-bg);
+            }
+
+            .option-item.correct .option-letter {
+                background: var(--success);
+                color: #fff;
+            }
+
+            .option-item.wrong {
+                border-color: var(--wrong-border);
+                background: var(--wrong-bg);
+            }
+
+            .option-item.wrong .option-letter {
+                background: var(--danger);
+                color: #fff;
+            }
+
+            .option-item.review-neutral {
+                cursor: default;
+                opacity: 0.7;
+            }
+
+            .option-item.review-neutral:hover {
+                border-color: var(--border);
+                background: transparent;
+            }
+
+            .exam-nav {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+
+            .exam-nav .nav-group {
+                display: flex;
+                gap: 10px;
+            }
+
+            .question-grid-toggle {
+                position: relative;
+            }
+
+            .question-grid-panel {
+                display: none;
+                position: fixed;
+                top: 0;
+                right: 0;
+                width: 360px;
+                height: 100vh;
+                background: var(--card-bg);
+                box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+                z-index: 200;
+                overflow-y: auto;
+                padding: 24px;
+            }
+
+            .question-grid-panel.open {
+                display: block;
+            }
+
+            .question-grid-panel h3 {
+                font-size: 16px;
+                margin-bottom: 16px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .question-grid-panel .close-btn {
+                background: none;
+                border: none;
+                font-size: 24px;
+                cursor: pointer;
+                color: var(--text-light);
+                padding: 4px;
+            }
+
+            .question-grid {
+                display: grid;
+                grid-template-columns: repeat(8, 1fr);
+                gap: 6px;
+            }
+
+            .question-grid .q-btn {
+                width: 100%;
+                aspect-ratio: 1;
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                background: var(--card-bg);
+                cursor: pointer;
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--text-light);
+                transition: all 0.15s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+            }
+            .question-grid .q-btn.uncertain {
+                border-color: #f59e0b;
+                box-shadow: 0 0 0 1px #f59e0b;
+            }
+            .question-grid .q-btn.uncertain::after {
+                content: '?';
+                position: absolute;
+                top: -5px;
+                right: -5px;
+                width: 14px;
+                height: 14px;
+                background: #f59e0b;
+                color: #fff;
+                border-radius: 50%;
+                font-size: 9px;
+                font-weight: 800;
+                line-height: 14px;
+                text-align: center;
+            }
+
+            .question-grid .q-btn:hover {
+                border-color: var(--accent);
+            }
+            .question-grid .q-btn.answered {
+                background: var(--accent);
+                color: #fff;
+                border-color: var(--accent);
+            }
+            .question-grid .q-btn.current {
+                border-color: var(--primary);
+                border-width: 2px;
+            }
+
+            .grid-legend {
+                display: flex;
+                gap: 16px;
+                margin-top: 16px;
+                font-size: 12px;
+                color: var(--text-light);
+            }
+
+            .grid-legend span {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .grid-legend .dot {
+                width: 12px;
+                height: 12px;
+                border-radius: 3px;
+            }
+
+            .grid-legend .dot.answered {
+                background: var(--accent);
+            }
+            .grid-legend .dot.unanswered {
+                background: var(--card-bg);
+                border: 1px solid var(--border);
+            }
+            .grid-legend .dot.current-dot {
+                background: var(--card-bg);
+                border: 2px solid var(--primary);
+            }
+            .grid-legend .dot.uncertain-dot {
+                background: #f59e0b;
+                border: 1px solid #d97706;
+            }
+
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 150;
+            }
+
+            .overlay.open {
+                display: block;
+            }
+
+            /* Result View */
+            .result-hero {
+                text-align: center;
+                padding: 40px;
+                background: var(--card-bg);
+                border-radius: 12px;
+                margin-bottom: 24px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+                border: 1px solid var(--border);
+            }
+
+            .result-hero .score-circle {
+                width: 160px;
+                height: 160px;
+                border-radius: 50%;
+                margin: 0 auto 20px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                font-size: 48px;
+                font-weight: 800;
+                position: relative;
+            }
+
+            .result-hero .score-circle::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                border-radius: 50%;
+                border: 8px solid var(--border);
+            }
+
+            .result-hero .score-circle.pass::before {
+                border-color: var(--success);
+            }
+            .result-hero .score-circle.fail::before {
+                border-color: var(--danger);
+            }
+
+            .result-hero .score-circle.pass {
+                color: var(--success);
+            }
+            .result-hero .score-circle.fail {
+                color: var(--danger);
+            }
+
+            .result-hero .score-circle .score-label {
+                font-size: 14px;
+                font-weight: 500;
+                color: var(--text-light);
+            }
+
+            .result-hero .result-status {
+                font-size: 24px;
+                font-weight: 700;
+                margin-bottom: 8px;
+            }
+
+            .result-hero .result-status.pass {
+                color: var(--success);
+            }
+            .result-hero .result-status.fail {
+                color: var(--danger);
+            }
+
+            .result-details {
+                display: flex;
+                justify-content: center;
+                gap: 32px;
+                margin-top: 16px;
+                flex-wrap: wrap;
+            }
+
+            .result-details .detail-item {
+                text-align: center;
+            }
+
+            .result-details .detail-item .label {
+                font-size: 13px;
+                color: var(--text-light);
+            }
+
+            .result-details .detail-item .value {
+                font-size: 20px;
+                font-weight: 700;
+            }
+
+            .result-actions {
+                display: flex;
+                justify-content: center;
+                gap: 12px;
+                margin-bottom: 24px;
+                flex-wrap: wrap;
+            }
+
+            .review-filter {
+                display: flex;
+                gap: 8px;
+                margin-bottom: 16px;
+                flex-wrap: wrap;
+            }
+
+            .review-filter .filter-btn {
+                padding: 8px 16px;
+                border: 1px solid var(--border);
+                border-radius: 20px;
+                background: var(--card-bg);
+                cursor: pointer;
+                font-size: 13px;
+                font-weight: 500;
+                transition: all 0.15s;
+            }
+
+            .review-filter .filter-btn:hover {
+                border-color: var(--accent);
+            }
+            .review-filter .filter-btn.active {
+                background: var(--accent);
+                color: #fff;
+                border-color: var(--accent);
+            }
+
+            .review-item {
+                background: var(--card-bg);
+                border-radius: 12px;
+                padding: 24px;
+                margin-bottom: 16px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+                border: 1px solid var(--border);
+            }
+
+            .review-item.correct-item {
+                border-left: 4px solid var(--success);
+            }
+            .review-item.wrong-item {
+                border-left: 4px solid var(--danger);
+            }
+            .review-item.unanswered-item {
+                border-left: 4px solid var(--text-light);
+            }
+            .review-item.uncertain-item {
+                outline: 2px solid #f59e0b;
+                outline-offset: -2px;
+            }
+
+            .review-item .review-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+            }
+
+            .review-item .review-q-num {
+                font-weight: 700;
+                font-size: 14px;
+            }
+
+            .explanation-box {
+                margin-top: 16px;
+                padding: 16px;
+                background: var(--explanation-bg, #f0f4ff);
+                border-radius: 8px;
+                border-left: 4px solid var(--explanation-accent, #5b7ec7);
+                font-size: 14px;
+                line-height: 1.7;
+                color: var(--text);
+            }
+
+            .explanation-box .explanation-title {
+                font-weight: 700;
+                margin-bottom: 6px;
+                color: var(--explanation-title-color, #3d5a99);
+                font-size: 13px;
+            }
+
+            /* Modal */
+            .modal-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.6);
+                z-index: 300;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .modal-overlay.open {
+                display: flex;
+            }
+
+            .modal {
+                background: var(--card-bg);
+                border-radius: 16px;
+                padding: 32px;
+                max-width: 440px;
+                width: 90%;
+                text-align: center;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            }
+
+            .modal .modal-icon {
+                font-size: 48px;
+                margin-bottom: 16px;
+            }
+
+            .modal h3 {
+                font-size: 20px;
+                margin-bottom: 8px;
+            }
+
+            .modal p {
+                color: var(--text-light);
+                margin-bottom: 24px;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+
+            .modal .modal-actions {
+                display: flex;
+                gap: 12px;
+                justify-content: center;
+            }
+
+            /* Scrollbar */
+            ::-webkit-scrollbar {
+                width: 8px;
+            }
+            ::-webkit-scrollbar-track {
+                background: var(--bg);
+            }
+            ::-webkit-scrollbar-thumb {
+                background: #c4c7c5;
+                border-radius: 4px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background: #9a9da0;
+            }
+
+            /* Responsive */
+            @media (max-width: 768px) {
+                .container {
+                    padding: 16px;
+                }
+                .dashboard-hero {
+                    padding: 24px;
+                }
+                .dashboard-hero h2 {
+                    font-size: 22px;
+                }
+                .exam-config {
+                    flex-direction: column;
+                }
+                .config-group {
+                    width: 100%;
+                }
+                .config-group select,
+                .config-group input {
+                    width: 100%;
+                }
+                .question-card {
+                    padding: 20px;
+                }
+                .question-grid {
+                    grid-template-columns: repeat(6, 1fr);
+                }
+                .question-grid-panel {
+                    width: 100%;
+                }
+                .history-table {
+                    overflow-x: auto;
+                }
+                .history-table table {
+                    min-width: 600px;
+                }
+                .header h1 {
+                    font-size: 14px;
+                }
+                .result-details {
+                    gap: 16px;
+                }
+                .header-toggles {
+                    gap: 4px;
+                }
+                .toggle-btn {
+                    padding: 4px 8px;
+                    font-size: 11px;
+                }
+            }
+
+            /* Delete button for history */
+            .btn-delete-history {
+                background: none;
+                border: none;
+                color: var(--danger);
+                cursor: pointer;
+                font-size: 16px;
+                padding: 4px 8px;
+                border-radius: 4px;
+                transition: background 0.15s;
+            }
+            .btn-delete-history:hover {
+                background: var(--wrong-bg);
+            }
+
+            .home-btn-header {
+                background: none;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                color: #fff;
+                padding: 6px 14px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 13px;
+                font-weight: 500;
+                transition: all 0.15s;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .home-btn-header:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            .no-answer-notice {
+                background: #fff8e1;
+                border: 1px solid #ffe082;
+                border-radius: 8px;
+                padding: 12px 16px;
+                margin-top: 12px;
+                font-size: 13px;
+                color: #856404;
+            }
+
+            [data-theme="dark"] .no-answer-notice {
+                background: #2a2000;
+                border-color: #5a4500;
+                color: #ffd54f;
+            }
+
+            /* ── ESL Accommodation checkbox ── */
+            .esl-row {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-top: 10px;
+                font-size: 13px;
+                color: #adb5bd;
+            }
+
+            .esl-row input[type="checkbox"] {
+                width: 16px;
+                height: 16px;
+                accent-color: var(--accent);
+                cursor: pointer;
+            }
+
+            .esl-row label {
+                cursor: pointer;
+                user-select: none;
+            }
+
+            .esl-badge {
+                display: inline-block;
+                background: rgba(255, 153, 0, 0.2);
+                color: var(--accent);
+                border: 1px solid rgba(255, 153, 0, 0.4);
+                border-radius: 12px;
+                padding: 1px 8px;
+                font-size: 11px;
+                font-weight: 700;
+                margin-left: 4px;
+                vertical-align: middle;
+            }
+
+            /* ── Export Markdown button ── */
+            .btn-export-md {
+                background: none;
+                border: 1px solid var(--border);
+                color: var(--text-light);
+                cursor: pointer;
+                font-size: 13px;
+                padding: 4px 10px;
+                border-radius: 4px;
+                transition: all 0.15s;
+                white-space: nowrap;
+            }
+
+            .btn-export-md:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+                background: rgba(255, 153, 0, 0.07);
+            }
+
+            [data-theme="dark"] .btn-export-md {
+                border-color: var(--border);
+                color: var(--text-light);
+            }
+
+            [data-theme="dark"] .btn-export-md:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+            /* Export button in result actions */
+            .result-actions .btn-export-md {
+                padding: 10px 20px;
+                font-size: 14px;
+                font-weight: 600;
+                border-width: 2px;
+                border-radius: 8px;
+            }
+
+            /* ── Toggle Buttons in Header ── */
+            .header-toggles {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .toggle-btn {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.25);
+                color: #fff;
+                padding: 5px 12px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-size: 13px;
+                font-weight: 500;
+                transition: all 0.2s;
+                white-space: nowrap;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+
+            .toggle-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+                border-color: rgba(255, 255, 255, 0.4);
+            }
+
+            .toggle-btn.active-lang {
+                background: var(--accent);
+                border-color: var(--accent);
+                color: var(--primary);
+                font-weight: 700;
+            }
+
+            /* Dark mode card and table overrides */
+            [data-theme="dark"] .question-card,
+            [data-theme="dark"] .history-table,
+            [data-theme="dark"] .result-hero {
+                background: var(--card-bg);
+            }
+
+            [data-theme="dark"] .history-table table {
+                background: var(--card-bg);
+            }
+
+            [data-theme="dark"] .history-table td {
+                border-bottom-color: var(--border);
+                color: var(--text);
+            }
+
+            [data-theme="dark"] .review-filter .filter-btn {
+                background: var(--card-bg);
+                color: var(--text);
+                border-color: var(--border);
+            }
+
+            [data-theme="dark"] .review-filter .filter-btn:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+            [data-theme="dark"] .review-filter .filter-btn.active {
+                background: var(--accent);
+                color: var(--primary);
+                border-color: var(--accent);
+            }
+
+            [data-theme="dark"] .btn-outline {
+                color: var(--text);
+                border-color: var(--border);
+            }
+
+            [data-theme="dark"] .btn-outline:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+            [data-theme="dark"] .section-title {
+                color: var(--text);
+                border-bottom-color: var(--border);
+            }
+
+            [data-theme="dark"] .result-details .detail-item {
+                background: var(--card-bg);
+                border-color: var(--border);
+            }
+
+            [data-theme="dark"] .result-details .detail-item .label {
+                color: var(--text-light);
+            }
+
+            [data-theme="dark"] ::-webkit-scrollbar-track {
+                background: var(--bg);
+            }
+
+            [data-theme="dark"] ::-webkit-scrollbar-thumb {
+                background: #444c56;
+            }
+
+            [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+                background: #545d68;
+            }
+
+            [data-theme="dark"] .modal {
+                background: var(--modal-bg);
+                color: var(--text);
+                border: 1px solid var(--border);
+            }
+
+            [data-theme="dark"] .modal h3 {
+                color: var(--text);
+            }
+
+            [data-theme="dark"] .modal p {
+                color: var(--text-light);
+            }
+
+            [data-theme="dark"] .modal-overlay {
+                background: rgba(0, 0, 0, 0.7);
+            }
+
+            [data-theme="dark"] .explanation-box {
+                background: var(--explanation-bg);
+                border-color: var(--explanation-border);
+                color: var(--text-light);
+            }
+
+            [data-theme="dark"] .explanation-box .explanation-title {
+                color: var(--text);
+            }
+
+            [data-theme="dark"] .review-item {
+                background: var(--review-item-bg);
+                border-color: var(--review-item-border);
+            }
+
+            [data-theme="dark"] .review-item.correct-item {
+                border-left-color: var(--correct-border);
+                background: #0d1f12;
+            }
+
+            [data-theme="dark"] .review-item.wrong-item {
+                border-left-color: var(--wrong-border);
+                background: #1f0d0d;
+            }
+
+            [data-theme="dark"] .review-item.unanswered-item {
+                background: #161b22;
+                border-left-color: #444c56;
+            }
+
+            [data-theme="dark"] .review-item .review-q-num {
+                color: var(--text-light);
+            }
+
+            [data-theme="dark"] .question-grid-panel {
+                background: var(--grid-panel-bg);
+                border-left-color: var(--border);
+            }
+
+            [data-theme="dark"] .question-grid-panel h3 {
+                color: var(--text);
+                border-bottom-color: var(--border);
+            }
+
+            [data-theme="dark"] .question-grid .q-btn {
+                background: var(--card-bg);
+                color: var(--text);
+                border-color: var(--border);
+            }
+
+            [data-theme="dark"] .question-grid .q-btn:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+            [data-theme="dark"] .question-grid .q-btn.answered {
+                background: var(--accent);
+                color: var(--primary);
+                border-color: var(--accent);
+            }
+
+            [data-theme="dark"] .question-grid .q-btn.current {
+                border-color: #58a6ff;
+                color: #58a6ff;
+            }
+
+            [data-theme="dark"] .grid-legend {
+                color: var(--text-light);
+                border-top-color: var(--border);
+            }
+
+            [data-theme="dark"] .history-table th {
+                background: var(--history-header-bg);
+                color: var(--text);
+                border-bottom-color: var(--border);
+            }
+
+            [data-theme="dark"] .history-table tr:last-child td {
+                border-bottom: none;
+            }
+
+            [data-theme="dark"] .empty-state {
+                color: var(--text-light);
+            }
+
+            [data-theme="dark"] .empty-state p {
+                color: var(--text-light);
+            }
+
+            [data-theme="dark"] .exam-info-bar {
+                background: var(--card-bg);
+                border-color: var(--border);
+                color: var(--text);
+            }
+
+            [data-theme="dark"] .exam-info-bar .question-counter {
+                color: var(--text);
+            }
+
+            [data-theme="dark"] .exam-progress-bar {
+                background: var(--border);
+            }
+
+            [data-theme="dark"] .badge {
+                background: #30363d;
+                color: var(--text-light);
+            }
+
+            [data-theme="dark"] .badge-pass {
+                background: #0d2818;
+                color: var(--correct-border);
+            }
+
+            [data-theme="dark"] .badge-fail {
+                background: #2d0f0f;
+                color: var(--wrong-border);
+            }
+
+            [data-theme="dark"] .dashboard-hero p {
+                color: #8b949e;
+            }
+
+            [data-theme="dark"] .config-group label {
+                color: #8b949e;
+            }
+
+            [data-theme="dark"] .result-hero .score-circle {
+                background: var(--card-bg);
+                border-color: var(--border);
+            }
+
+            [data-theme="dark"] .home-btn-header {
+                color: #e6edf3;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <span class="aws-logo">AWS</span>
+                <span data-i18n="siteTitle">SAA-C03 模擬考系統</span>
+            </h1>
+            <div class="header-actions">
+                <div id="timerContainer" style="display: none">
+                    <div class="timer-display" id="timerDisplay">--:--:--</div>
+                </div>
+                <div class="header-toggles">
+                    <button
+                        class="toggle-btn"
+                        id="btnLangToggle"
+                        onclick="toggleLang()"
+                        title="Switch Language"
+                    >
+                        <span id="langToggleLabel">EN</span>
+                    </button>
+                    <button
+                        class="toggle-btn"
+                        id="btnDarkToggle"
+                        onclick="toggleDark()"
+                        title="Toggle Dark Mode"
+                    >
+                        <span id="darkToggleLabel">🌙</span>
+                    </button>
+                </div>
+                <button
+                    class="home-btn-header"
+                    id="btnHomePage"
+                    style="display: none"
+                    onclick="goHome()"
+                >
+                    <span data-i18n="backHome">◀ 返回主畫面</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard View -->
+        <div class="view active" id="viewDashboard">
+            <div class="container">
+                <div class="dashboard-hero">
+                    <h2 data-i18n="heroTitle">🎯 開始模擬考試</h2>
+                    <p data-i18n="heroDesc">
+                        模擬 AWS Solutions Architect Associate (SAA-C03)
+                        認證考試，共有題庫可隨機出題。及格分數為 72%。
+                    </p>
+                    <div class="exam-config">
+                        <div class="config-group">
+                            <label data-i18n="labelQuestionCount"
+                                >題目數量</label
+                            >
+                            <select id="cfgQuestionCount">
+                                <option value="15" data-i18n="opt15q">
+                                    15 題（快速練習）
+                                </option>
+                                <option value="30" data-i18n="opt30q">
+                                    30 題（短測驗）
+                                </option>
+                                <option value="65" selected data-i18n="opt65q">
+                                    65 題（標準考試）
+                                </option>
+                                <option value="100" data-i18n="opt100q">
+                                    100 題
+                                </option>
+                                <option value="0" data-i18n="optAllq">
+                                    全部題目
+                                </option>
+                            </select>
+                        </div>
+                        <div class="config-group">
+                            <label data-i18n="labelTimeLimit">考試時間</label>
+                            <select id="cfgTimeLimit">
+                                <option value="15" data-i18n="opt15m">
+                                    15 分鐘
+                                </option>
+                                <option value="30" data-i18n="opt30m">
+                                    30 分鐘
+                                </option>
+                                <option value="60" data-i18n="opt60m">
+                                    60 分鐘
+                                </option>
+                                <option value="90" data-i18n="opt90m">
+                                    90 分鐘
+                                </option>
+                                <option
+                                    value="130"
+                                    selected
+                                    data-i18n="opt130m"
+                                >
+                                    130 分鐘（官方時間）
+                                </option>
+                                <option value="0" data-i18n="optNoLimit">
+                                    不限時
+                                </option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="startExam()">
+                            <span data-i18n="btnStartExam">▶ 開始考試</span>
+                        </button>
+                    </div>
+                    <div class="esl-row" id="eslRow">
+                        <input type="checkbox" id="cfgEsl" />
+                        <label for="cfgEsl" id="eslLabel">
+                            <span data-i18n="eslLabel"
+                                >非母語應試者延長時間</span
+                            >
+                            <span class="esl-badge">+30 min</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card">
+                        <div class="stat-label" data-i18n="statLabelTotal">
+                            📝 題庫總數
+                        </div>
+                        <div class="stat-value" id="statTotal">--</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label" data-i18n="statLabelExams">
+                            📊 考試次數
+                        </div>
+                        <div class="stat-value" id="statExams">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label" data-i18n="statLabelBest">
+                            🏆 最高分數
+                        </div>
+                        <div class="stat-value" id="statBest">--</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label" data-i18n="statLabelAvg">
+                            📈 平均分數
+                        </div>
+                        <div class="stat-value" id="statAvg">--</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label" data-i18n="statLabelPassed">
+                            ✅ 通過次數
+                        </div>
+                        <div class="stat-value pass" id="statPassed">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label" data-i18n="statLabelPassRate">
+                            📉 通過率
+                        </div>
+                        <div class="stat-value" id="statPassRate">--</div>
+                    </div>
+                </div>
+
+                <div class="section-title" data-i18n="sectionHistory">
+                    📋 歷史考試紀錄
+                </div>
+                <div class="history-table" id="historyContainer">
+                    <div class="empty-state" id="emptyHistory">
+                        <div class="empty-icon">📭</div>
+                        <p data-i18n="emptyHistory">
+                            尚無考試紀錄，開始第一場模擬考試吧！
+                        </p>
+                    </div>
+                    <table id="historyTable" style="display: none">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th data-i18n="thDate">日期</th>
+                                <th data-i18n="thTime">時間</th>
+                                <th data-i18n="thQCount">題數</th>
+                                <th data-i18n="thScore">分數</th>
+                                <th data-i18n="thResult">結果</th>
+                                <th data-i18n="thAction">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exam View -->
+        <div class="view" id="viewExam">
+            <div class="container">
+                <div class="exam-progress-bar">
+                    <div
+                        class="fill"
+                        id="examProgressFill"
+                        style="width: 0%"
+                    ></div>
+                </div>
+                <div class="exam-info-bar">
+                    <div class="question-counter">
+                        <span data-i18n="questionLabel">題目</span>
+                        <strong id="examCurrentNum">1</strong> /
+                        <span id="examTotalNum">65</span>
+                        <span
+                            style="
+                                margin-left: 12px;
+                                font-size: 13px;
+                                color: var(--text-light);
+                            "
+                            id="answeredCount"
+                        ></span>
+                    </div>
+                    <div class="nav-group">
+                        <button
+                            class="btn btn-outline btn-sm"
+                            onclick="toggleQuestionGrid()"
+                        >
+                            <span data-i18n="btnOverview">📋 題目總覽</span>
+                        </button>
+                        <button
+                            class="btn btn-danger btn-sm"
+                            onclick="confirmSubmit()"
+                        >
+                            <span data-i18n="btnEarlySubmit">📤 提前交卷</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="question-card" id="questionCard">
+                    <div>
+                        <span class="question-badge" id="questionBadge"
+                            >Question #1</span
+                        >
+                        <span
+                            class="question-badge multi-badge"
+                            id="multiBadge"
+                            style="display: none"
+                        ></span>
+                    </div>
+                    <div class="question-text" id="questionText"></div>
+                    <div class="options-list" id="optionsList"></div>
+                </div>
+
+                <div class="exam-nav">
+                    <div class="nav-group">
+                        <button
+                            class="btn btn-outline"
+                            id="btnPrev"
+                            onclick="prevQuestion()"
+                        >
+                            <span data-i18n="btnPrev">◀ 上一題</span>
+                        </button>
+                        <button
+                            class="btn btn-outline"
+                            id="btnNext"
+                            onclick="nextQuestion()"
+                        >
+                            <span data-i18n="btnNext">下一題 ▶</span>
+                        </button>
+                    </div>
+                    <div class="nav-group">
+                        <button
+                            class="btn-uncertain-toggle"
+                            id="btnUncertain"
+                            onclick="toggleUncertain()"
+                        >
+                            <span id="uncertainBtnLabel" data-i18n="btnMarkUncertain">❓ 標記為不確定</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Grid Panel -->
+            <div
+                class="overlay"
+                id="gridOverlay"
+                onclick="toggleQuestionGrid()"
+            ></div>
+            <div class="question-grid-panel" id="gridPanel">
+                <h3>
+                    <span data-i18n="gridPanelTitle">題目總覽</span>
+                    <button class="close-btn" onclick="toggleQuestionGrid()">
+                        ✕
+                    </button>
+                </h3>
+                <div class="question-grid" id="questionGrid"></div>
+                <div class="grid-legend">
+                    <span
+                        ><span class="dot answered"></span
+                        ><span data-i18n="legendAnswered">已作答</span></span
+                    >
+                    <span
+                        ><span class="dot unanswered"></span
+                        ><span data-i18n="legendUnanswered">未作答</span></span
+                    >
+                    <span
+                        ><span class="dot current-dot"></span
+                        ><span data-i18n="legendCurrent">當前題目</span></span
+                    >
+                    <span
+                        ><span class="dot uncertain-dot"></span
+                        ><span data-i18n="legendUncertain">不確定</span></span
+                    >
+                </div>
+            </div>
+        </div>
+
+        <!-- Result View -->
+        <div class="view" id="viewResult">
+            <div class="container">
+                <div class="result-hero" id="resultHero">
+                    <div class="score-circle" id="scoreCircle">
+                        <span id="scoreValue">0%</span>
+                        <span class="score-label" data-i18n="scoreLabel"
+                            >得分</span
+                        >
+                    </div>
+                    <div class="result-status" id="resultStatus">--</div>
+                    <div class="result-details" id="resultDetails"></div>
+                    <div id="safetySection"></div>
+                </div>
+
+                <div class="result-actions">
+                    <button class="btn btn-primary" onclick="goHome()">
+                        <span data-i18n="backHome">◀ 返回主畫面</span>
+                    </button>
+                    <button class="btn btn-outline" onclick="scrollToReview()">
+                        <span data-i18n="btnViewReview">📖 查看答題記錄</span>
+                    </button>
+                    <button class="btn btn-outline" onclick="openScoringModal()">
+                        <span data-i18n="btnScoringInfo">ℹ️ AWS 計分說明</span>
+                    </button>
+                    <button
+                        class="btn-export-md"
+                        id="btnExportMd"
+                        onclick="exportCurrentResultMd()"
+                    >
+                        <span data-i18n="btnExportMd">⬇️ 匯出 Markdown</span>
+                    </button>
+                </div>
+
+                <div id="reviewSection">
+                    <div class="section-title" data-i18n="sectionReview">
+                        📖 答題記錄與解析
+                    </div>
+                    <div class="review-filter" id="reviewFilter">
+                        <button
+                            class="filter-btn active"
+                            data-filter="all"
+                            onclick="filterReview('all', this)"
+                            data-i18n="filterAll"
+                        >
+                            全部
+                        </button>
+                        <button
+                            class="filter-btn"
+                            data-filter="wrong"
+                            onclick="filterReview('wrong', this)"
+                            data-i18n="filterWrong"
+                        >
+                            ❌ 答錯
+                        </button>
+                        <button
+                            class="filter-btn"
+                            data-filter="correct"
+                            onclick="filterReview('correct', this)"
+                            data-i18n="filterCorrect"
+                        >
+                            ✅ 答對
+                        </button>
+                        <button
+                            class="filter-btn"
+                            data-filter="unanswered"
+                            onclick="filterReview('unanswered', this)"
+                            data-i18n="filterUnanswered"
+                        >
+                            ⬜ 未作答
+                        </button>
+                        <button
+                            class="filter-btn"
+                            data-filter="uncertain"
+                            onclick="filterReview('uncertain', this)"
+                            data-i18n="filterUncertain"
+                        >
+                            ❓ 不確定
+                        </button>
+                    </div>
+                    <div id="reviewList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Confirmation Modal -->
+        <div class="modal-overlay" id="submitModal">
+            <div class="modal">
+                <div class="modal-icon">📤</div>
+                <h3 data-i18n="modalSubmitTitle">確定要交卷嗎？</h3>
+                <p id="submitModalText"></p>
+                <div class="modal-actions">
+                    <button
+                        class="btn btn-outline"
+                        onclick="closeSubmitModal()"
+                    >
+                        <span data-i18n="btnContinue">繼續作答</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="submitExam()">
+                        <span data-i18n="btnConfirmSubmit">確定交卷</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Time's Up Modal -->
+        <div class="modal-overlay" id="timeUpModal">
+            <div class="modal">
+                <div class="modal-icon">⏰</div>
+                <h3 data-i18n="modalTimeUpTitle">考試時間到！</h3>
+                <p data-i18n="modalTimeUpDesc">
+                    考試時間已結束，系統將自動為您交卷。
+                </p>
+                <div class="modal-actions">
+                    <button class="btn btn-primary" onclick="forceSubmit()">
+                        <span data-i18n="btnViewScore">查看成績</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scoring Info Modal -->
+        <div class="modal-overlay" id="scoringModal" onclick="closeScoringModal(event)">
+            <div class="modal modal-wide">
+                <div class="modal-wide-header">
+                    <h3 id="scoringModalTitle">AWS SAA-C03 計分機制</h3>
+                    <button class="modal-close-x" onclick="closeScoringModal()">✕</button>
+                </div>
+                <div id="scoringModalBody"></div>
+            </div>
+        </div>
+
+        <script src="questions.js"></script>
+        <script>
+            // ============================================================
+            // QUESTION BANK - loaded from questions.js via script tag
+            // ============================================================
+
+            // ============================================================
+            // I18N - Translations
+            // ============================================================
+            const I18N = {
+                zh: {
+                    siteTitle: "SAA-C03 模擬考系統",
+                    backHome: "◀ 返回主畫面",
+                    heroTitle: "🎯 開始模擬考試",
+                    heroDesc:
+                        "模擬 AWS Solutions Architect Associate (SAA-C03) 認證考試，共有題庫可隨機出題。及格分數為 72%。",
+                    labelQuestionCount: "題目數量",
+                    labelTimeLimit: "考試時間",
+                    opt15q: "15 題（快速練習）",
+                    opt30q: "30 題（短測驗）",
+                    opt65q: "65 題（標準考試）",
+                    opt100q: "100 題",
+                    optAllq: "全部題目",
+                    opt15m: "15 分鐘",
+                    opt30m: "30 分鐘",
+                    opt60m: "60 分鐘",
+                    opt90m: "90 分鐘",
+                    opt130m: "130 分鐘（官方時間）",
+                    optNoLimit: "不限時",
+                    btnStartExam: "▶ 開始考試",
+                    statLabelTotal: "📝 題庫總數",
+                    statLabelExams: "📊 考試次數",
+                    statLabelBest: "🏆 最高分數",
+                    statLabelAvg: "📈 平均分數",
+                    statLabelPassed: "✅ 通過次數",
+                    statLabelPassRate: "📉 通過率",
+                    sectionHistory: "📋 歷史考試紀錄",
+                    emptyHistory: "尚無考試紀錄，開始第一場模擬考試吧！",
+                    thDate: "日期",
+                    thTime: "時間",
+                    thQCount: "題數",
+                    thScore: "分數",
+                    thResult: "結果",
+                    thAction: "操作",
+                    eslLabel: "非母語應試者延長時間",
+                    eslTooltip:
+                        "ESL 應試者可申請額外 30 分鐘作答時間（僅限有時間限制的考試）",
+                    btnExportMd: "⬇️ 匯出 Markdown",
+                    historyBtnExport: "⬇️ MD",
+                    mdTitle: "AWS SAA-C03 模擬考試成績單",
+                    mdExamInfo: "考試資訊",
+                    mdDate: "日期",
+                    mdScore: "得分",
+                    mdResult: "結果",
+                    mdResultPass: "通過 ✅",
+                    mdResultFail: "未通過 ❌",
+                    mdCorrect: "答對",
+                    mdWrong: "答錯",
+                    mdUnanswered: "未作答",
+                    mdTotal: "總題數",
+                    mdTimeSpent: "用時",
+                    mdTimeLimit: "時間限制",
+                    mdTimeLimitNone: "不限時",
+                    mdPassScore: "及格分數",
+                    mdDetailTitle: "答題明細",
+                    mdStatusCorrect: "答對 ✅",
+                    mdStatusWrong: "答錯 ❌",
+                    mdStatusUnanswered: "未作答 ⬜",
+                    mdUncertainNote: "❓ 不確定（已標記）",
+                    mdYourAnswer: "你的答案",
+                    mdCorrectAnswer: "正確答案",
+                    mdExplanation: "解析",
+                    mdNoAnswer: "（未作答）",
+                    mdNoExplanation: "（無解析）",
+                    mdMultiSelect: "多選題，需選 {n} 個",
+                    mdEslNote: "（含 ESL 延長 30 分鐘）",
+                    questionLabel: "題目",
+                    answeredCount: "（已答 {n} 題）",
+                    btnOverview: "📋 題目總覽",
+                    btnEarlySubmit: "📤 提前交卷",
+                    multiBadgeText: "請選擇 {n} 個答案",
+                    btnPrev: "◀ 上一題",
+                    btnNext: "下一題 ▶",
+                    btnFinish: "完成作答 ✓",
+                    btnMarkUncertain: "❓ 標記為不確定",
+                    btnUnmarkUncertain: "✔ 取消不確定",
+                    gridPanelTitle: "題目總覽",
+                    legendAnswered: "已作答",
+                    legendUnanswered: "未作答",
+                    legendCurrent: "當前題目",
+                    legendUncertain: "不確定",
+                    scoreLabel: "得分",
+                    resultPass: "🎉 恭喜通過！",
+                    resultFail: "😥 未達及格標準",
+                    detailCorrect: "答對",
+                    detailWrong: "答錯",
+                    detailUnanswered: "未作答",
+                    detailTotal: "總題數",
+                    detailTime: "用時",
+                    detailPassScore: "及格分數",
+                    timeLimitNone: "不限時",
+                    btnViewReview: "📖 查看答題記錄",
+                    sectionReview: "📖 答題記錄與解析",
+                    btnScoringInfo: "ℹ️ AWS 計分說明",
+                    safetyTitle: "📊 練習安全目標對照",
+                    safetyLevelFail: "未達及格分數線（72%），繼續加油！",
+                    safetyLevelPass: "通過及格線，但尚未達到安全練習目標（80%），建議繼續提升。",
+                    safetyLevelSafe: "已達到安全練習目標（80%+），正式考試更有把握！",
+                    safetyLevelExcellent: "超越安全目標（85%+），準備相當充分，信心出發！",
+                    safetyZoneFail: "未通過（<72%）",
+                    safetyZonePass: "及格（72–80%）",
+                    safetyZoneSafe: "安全（80–85%）",
+                    safetyZoneExcellent: "優秀（85%+）",
+                    scoringModalTitle: "AWS SAA-C03 計分機制說明",
+                    filterAll: "全部",
+                    filterWrong: "❌ 答錯",
+                    filterCorrect: "✅ 答對",
+                    filterUnanswered: "⬜ 未作答",
+                    filterUncertain: "❓ 不確定",
+                    modalSubmitTitle: "確定要交卷嗎？",
+                    modalSubmitMsgPartial:
+                        "您還有 {n} 題尚未作答，確定要提前交卷嗎？",
+                    modalSubmitMsgAll: "您已完成所有題目，確定要交卷嗎？",
+                    btnContinue: "繼續作答",
+                    btnConfirmSubmit: "確定交卷",
+                    modalTimeUpTitle: "考試時間到！",
+                    modalTimeUpDesc: "考試時間已結束，系統將自動為您交卷。",
+                    btnViewScore: "查看成績",
+                    reviewBadgeCorrect: "✅ 答對",
+                    reviewBadgeWrong: "❌ 答錯",
+                    reviewBadgeUnanswered: "⬜ 未作答",
+                    reviewBadgeNoAnswer: "➖ 無標準答案",
+                    reviewBadgeUncertain: "❓ 不確定",
+                    reviewIndicatorCorrect: " ✓",
+                    reviewIndicatorAnswer: " ← 正確答案",
+                    reviewIndicatorYour: " ← 你的選擇",
+                    noAnswerNotice: "⚠️ 此題目在題庫中無標準答案，不計入評分。",
+                    explanationTitle: "📘 解析",
+                    multiHint: "（多選 {n}）",
+                    emptyFilter: "沒有符合篩選條件的題目",
+                    gridTitle: "第 {n} 題",
+                    noteAdd: "📝 新增筆記",
+                    noteEdit: "📝 編輯筆記",
+                    noteSave: "💾 儲存",
+                    noteCancel: "取消",
+                    noteDelete: "🗑️ 刪除",
+                    notePlaceholder: "在此輸入筆記（將自動以題目 ID 儲存）…",
+                    noteLabel: "我的筆記",
+                    mdNoteTitle: "筆記",
+                    historyBadgePass: "✅ 通過",
+                    historyBadgeFail: "❌ 未通過",
+                    historyBtnView: "查看",
+                    historyBtnExport: "⬇️ MD",
+                    confirmDelete: "確定要刪除此考試紀錄嗎？",
+                    alertNoBank: "題庫尚未載入，請稍候再試。",
+                    beforeUnload: "考試正在進行中，確定要離開嗎？",
+                    timeFormatHMS: "{h}小時{m}分{s}秒",
+                    timeFormatMS: "{m}分{s}秒",
+                },
+                en: {
+                    siteTitle: "SAA-C03 Mock Exam",
+                    backHome: "◀ Home",
+                    heroTitle: "🎯 Start Mock Exam",
+                    heroDesc:
+                        "Simulate the AWS Solutions Architect Associate (SAA-C03) certification exam with randomized questions. Passing score: 72%.",
+                    labelQuestionCount: "Questions",
+                    labelTimeLimit: "Time Limit",
+                    opt15q: "15 Questions (Quick)",
+                    opt30q: "30 Questions (Short)",
+                    opt65q: "65 Questions (Standard)",
+                    opt100q: "100 Questions",
+                    optAllq: "All Questions",
+                    opt15m: "15 Minutes",
+                    opt30m: "30 Minutes",
+                    opt60m: "60 Minutes",
+                    opt90m: "90 Minutes",
+                    opt130m: "130 Minutes (Official)",
+                    optNoLimit: "No Limit",
+                    btnStartExam: "▶ Start Exam",
+                    statLabelTotal: "📝 Question Bank",
+                    statLabelExams: "📊 Total Exams",
+                    statLabelBest: "🏆 Best Score",
+                    statLabelAvg: "📈 Average Score",
+                    statLabelPassed: "✅ Passed",
+                    statLabelPassRate: "📉 Pass Rate",
+                    sectionHistory: "📋 Exam History",
+                    emptyHistory:
+                        "No exam history yet. Start your first mock exam!",
+                    thDate: "Date",
+                    thTime: "Time",
+                    thQCount: "Questions",
+                    thScore: "Score",
+                    thResult: "Result",
+                    thAction: "Actions",
+                    questionLabel: "Question",
+                    answeredCount: "({n} answered)",
+                    btnOverview: "📋 Overview",
+                    btnEarlySubmit: "📤 Submit Early",
+                    multiBadgeText: "Select {n} answers",
+                    btnPrev: "◀ Previous",
+                    btnNext: "Next ▶",
+                    btnFinish: "Finish ✓",
+                    btnMarkUncertain: "❓ Mark as Uncertain",
+                    btnUnmarkUncertain: "✔ Unmark Uncertain",
+                    gridPanelTitle: "Question Overview",
+                    legendAnswered: "Answered",
+                    legendUnanswered: "Unanswered",
+                    legendCurrent: "Current",
+                    legendUncertain: "Uncertain",
+                    scoreLabel: "Score",
+                    resultPass: "🎉 Congratulations!",
+                    resultFail: "😥 Below Passing Score",
+                    detailCorrect: "Correct",
+                    detailWrong: "Wrong",
+                    detailUnanswered: "Unanswered",
+                    detailTotal: "Total",
+                    detailTime: "Time Spent",
+                    detailPassScore: "Pass Score",
+                    timeLimitNone: "No Limit",
+                    btnViewReview: "📖 View Review",
+                    sectionReview: "📖 Review & Explanations",
+                    btnScoringInfo: "ℹ️ AWS Scoring Info",
+                    safetyTitle: "📊 Practice Safety Target",
+                    safetyLevelFail: "Below passing score (72%). Keep studying!",
+                    safetyLevelPass: "Passing, but below the safe practice target (80%). Aim higher.",
+                    safetyLevelSafe: "Reached safe practice target (80%+). You are well prepared!",
+                    safetyLevelExcellent: "Excellent (85%+)! You are very well prepared. Go for it!",
+                    safetyZoneFail: "Fail (<72%)",
+                    safetyZonePass: "Pass (72–80%)",
+                    safetyZoneSafe: "Safe (80–85%)",
+                    safetyZoneExcellent: "Excellent (85%+)",
+                    scoringModalTitle: "AWS SAA-C03 Scoring Explained",
+                    filterAll: "All",
+                    filterWrong: "❌ Wrong",
+                    filterCorrect: "✅ Correct",
+                    filterUnanswered: "⬜ Unanswered",
+                    filterUncertain: "❓ Uncertain",
+                    modalSubmitTitle: "Submit Exam?",
+                    modalSubmitMsgPartial:
+                        "You have {n} unanswered question(s). Submit anyway?",
+                    modalSubmitMsgAll:
+                        "All questions answered. Ready to submit?",
+                    btnContinue: "Continue",
+                    btnConfirmSubmit: "Submit",
+                    modalTimeUpTitle: "Time's Up!",
+                    modalTimeUpDesc:
+                        "Your time has expired. The exam will be submitted automatically.",
+                    btnViewScore: "View Results",
+                    reviewBadgeCorrect: "✅ Correct",
+                    reviewBadgeWrong: "❌ Wrong",
+                    reviewBadgeUnanswered: "⬜ Unanswered",
+                    reviewBadgeNoAnswer: "➖ No Official Answer",
+                    reviewBadgeUncertain: "❓ Uncertain",
+                    reviewIndicatorCorrect: " ✓",
+                    reviewIndicatorAnswer: " ← Correct Answer",
+                    reviewIndicatorYour: " ← Your Choice",
+                    noAnswerNotice:
+                        "⚠️ No official answer for this question. Not counted in score.",
+                    explanationTitle: "📘 Explanation",
+                    multiHint: "(Multi-select {n})",
+                    emptyFilter: "No questions match the selected filter.",
+                    gridTitle: "Question {n}",
+                    noteAdd: "📝 Add Note",
+                    noteEdit: "📝 Edit Note",
+                    noteSave: "💾 Save",
+                    noteCancel: "Cancel",
+                    noteDelete: "🗑️ Delete",
+                    notePlaceholder: "Enter your note here (saved by question ID)…",
+                    noteLabel: "My Note",
+                    mdNoteTitle: "Note",
+                    historyBadgePass: "✅ Pass",
+                    historyBadgeFail: "❌ Fail",
+                    historyBtnView: "View",
+                    historyBtnExport: "⬇️ MD",
+                    confirmDelete: "Delete this exam record?",
+                    alertNoBank: "Question bank not loaded. Please wait.",
+                    beforeUnload:
+                        "Exam in progress. Are you sure you want to leave?",
+                    timeFormatHMS: "{h}h {m}m {s}s",
+                    timeFormatMS: "{m}m {s}s",
+                    eslLabel: "Non-native speaker time extension",
+                    eslTooltip:
+                        "ESL candidates may apply for 30 extra minutes (only applies when a time limit is set)",
+                    btnExportMd: "⬇️ Export Markdown",
+                    historyBtnExport: "⬇️ MD",
+                    mdTitle: "AWS SAA-C03 Mock Exam Report",
+                    mdExamInfo: "Exam Summary",
+                    mdDate: "Date",
+                    mdScore: "Score",
+                    mdResult: "Result",
+                    mdResultPass: "PASS ✅",
+                    mdResultFail: "FAIL ❌",
+                    mdCorrect: "Correct",
+                    mdWrong: "Wrong",
+                    mdUnanswered: "Unanswered",
+                    mdTotal: "Total Questions",
+                    mdTimeSpent: "Time Spent",
+                    mdTimeLimit: "Time Limit",
+                    mdTimeLimitNone: "No Limit",
+                    mdPassScore: "Pass Score",
+                    mdDetailTitle: "Question Details",
+                    mdStatusCorrect: "Correct ✅",
+                    mdStatusWrong: "Wrong ❌",
+                    mdStatusUnanswered: "Unanswered ⬜",
+                    mdUncertainNote: "❓ Uncertain (flagged)",
+                    mdYourAnswer: "Your Answer",
+                    mdCorrectAnswer: "Correct Answer",
+                    mdExplanation: "Explanation",
+                    mdNoAnswer: "(Not answered)",
+                    mdNoExplanation: "(No explanation)",
+                    mdMultiSelect: "Multi-select, choose {n}",
+                    mdEslNote: "(incl. ESL +30 min)",
+                },
+            };
+
+            // ============================================================
+            // APPLICATION STATE
+            // ============================================================
+            const APP = {
+                currentView: "dashboard",
+                exam: null,
+                timerInterval: null,
+                history: [],
+                reviewingExamId: null,
+                lang: "zh",
+                dark: false,
+                eslEnabled: false,
+                notes: {},
+            };
+
+            // ============================================================
+            // I18N HELPERS
+            // ============================================================
+            function t(key, vars) {
+                const lang = APP.lang || "zh";
+                let str =
+                    (I18N[lang] && I18N[lang][key]) || I18N["zh"][key] || key;
+                if (vars) {
+                    Object.keys(vars).forEach(function (k) {
+                        str = str.replace("{" + k + "}", vars[k]);
+                    });
+                }
+                return str;
+            }
+
+            function applyI18n() {
+                document.querySelectorAll("[data-i18n]").forEach(function (el) {
+                    var key = el.getAttribute("data-i18n");
+                    if (key) el.textContent = t(key);
+                });
+            }
+
+            // ============================================================
+            // DARK MODE & LANGUAGE TOGGLES
+            // ============================================================
+            function toggleDark() {
+                APP.dark = !APP.dark;
+                applyTheme();
+                try {
+                    localStorage.setItem("aws_dark", APP.dark ? "1" : "0");
+                } catch (e) {}
+            }
+
+            function applyTheme() {
+                if (APP.dark) {
+                    document.documentElement.setAttribute("data-theme", "dark");
+                    document.getElementById("darkToggleLabel").textContent =
+                        "☀️";
+                } else {
+                    document.documentElement.removeAttribute("data-theme");
+                    document.getElementById("darkToggleLabel").textContent =
+                        "🌙";
+                }
+            }
+
+            function toggleLang() {
+                APP.lang = APP.lang === "zh" ? "en" : "zh";
+                applyI18n();
+                updateLangButton();
+                // Re-render dynamic content that uses t()
+                renderDashboard();
+                if (APP.currentView === "viewExam" && APP.exam) {
+                    renderExamQuestion();
+                }
+                if (APP.currentView === "viewResult") {
+                    // Find the result data to re-render
+                    let result = null;
+                    if (APP.reviewingExamId) {
+                        result = APP.history.find(
+                            (h) => h.id === APP.reviewingExamId,
+                        );
+                    } else {
+                        result = APP.history[APP.history.length - 1];
+                    }
+                    if (result) {
+                        renderResultView(result);
+                    }
+                }
+                try {
+                    localStorage.setItem("aws_lang", APP.lang);
+                } catch (e) {}
+            }
+
+            function updateLangButton() {
+                var btn = document.getElementById("btnLangToggle");
+                var label = document.getElementById("langToggleLabel");
+                if (APP.lang === "zh") {
+                    label.textContent = "EN";
+                    btn.classList.remove("active-lang");
+                } else {
+                    label.textContent = "中文";
+                    btn.classList.add("active-lang");
+                }
+            }
+
+            function loadPreferences() {
+                try {
+                    var dark = localStorage.getItem("aws_dark");
+                    if (dark === "1") APP.dark = true;
+                    var lang = localStorage.getItem("aws_lang");
+                    if (lang === "en") APP.lang = "en";
+                } catch (e) {}
+                applyTheme();
+                applyI18n();
+                updateLangButton();
+            }
+
+            // ============================================================
+            // ESL ACCOMMODATION
+            // ============================================================
+            function updateEslRow() {
+                const timeVal = parseInt(
+                    document.getElementById("cfgTimeLimit").value,
+                );
+                const eslRow = document.getElementById("eslRow");
+                if (timeVal === 0) {
+                    eslRow.style.opacity = "0.4";
+                    eslRow.style.pointerEvents = "none";
+                    document.getElementById("cfgEsl").checked = false;
+                } else {
+                    eslRow.style.opacity = "1";
+                    eslRow.style.pointerEvents = "auto";
+                }
+            }
+
+            // ============================================================
+            // INITIALIZATION
+            // ============================================================
+            function init() {
+                loadHistory();
+                loadNotes();
+                loadPreferences();
+
+                // Filter to only questions with answers and valid options (mutate in-place to avoid reassigning const)
+                const filtered = QUESTION_BANK.filter(
+                    (q) =>
+                        q.correctAnswers &&
+                        q.correctAnswers.length > 0 &&
+                        Object.keys(q.options).length >= 2,
+                );
+                QUESTION_BANK.splice(0, QUESTION_BANK.length, ...filtered);
+                document.getElementById("statTotal").textContent =
+                    QUESTION_BANK.length;
+
+                renderDashboard();
+
+                // Attach ESL toggle listener
+                document
+                    .getElementById("cfgTimeLimit")
+                    .addEventListener("change", updateEslRow);
+                updateEslRow();
+
+                // Set ESL tooltip from i18n (done after loadPreferences sets lang)
+                document.getElementById("eslLabel").title = t("eslTooltip");
+            }
+
+            // ============================================================
+            // VIEW MANAGEMENT
+            // ============================================================
+            function showView(viewId) {
+                document
+                    .querySelectorAll(".view")
+                    .forEach((v) => v.classList.remove("active"));
+                document.getElementById(viewId).classList.add("active");
+                APP.currentView = viewId;
+
+                const homeBtn = document.getElementById("btnHomePage");
+                const timerC = document.getElementById("timerContainer");
+
+                if (viewId === "viewDashboard") {
+                    homeBtn.style.display = "none";
+                    timerC.style.display = "none";
+                } else if (viewId === "viewExam") {
+                    homeBtn.style.display = "none"; // no home button during exam
+                    timerC.style.display =
+                        APP.exam && APP.exam.timeLimit > 0 ? "block" : "none";
+                } else {
+                    homeBtn.style.display = "flex";
+                    timerC.style.display = "none";
+                }
+
+                window.scrollTo(0, 0);
+            }
+
+            function goHome() {
+                if (APP.exam && APP.exam.active) {
+                    confirmSubmit();
+                    return;
+                }
+                stopTimer();
+                APP.exam = null;
+                APP.reviewingExamId = null;
+                renderDashboard();
+                showView("viewDashboard");
+            }
+
+            // ============================================================
+            // DASHBOARD
+            // ============================================================
+            function renderDashboard() {
+                const history = APP.history;
+                const totalExams = history.length;
+                const passed = history.filter((h) => h.passed).length;
+                const scores = history.map((h) => h.score);
+                const best = scores.length ? Math.max(...scores) : null;
+                const avg = scores.length
+                    ? scores.reduce((a, b) => a + b, 0) / scores.length
+                    : null;
+
+                document.getElementById("statExams").textContent = totalExams;
+                document.getElementById("statBest").textContent =
+                    best !== null ? best.toFixed(1) + "%" : "--";
+                document.getElementById("statBest").className =
+                    "stat-value" + (best !== null && best >= 72 ? " pass" : "");
+                document.getElementById("statAvg").textContent =
+                    avg !== null ? avg.toFixed(1) + "%" : "--";
+                document.getElementById("statPassed").textContent = passed;
+                document.getElementById("statPassRate").textContent =
+                    totalExams > 0
+                        ? ((passed / totalExams) * 100).toFixed(0) + "%"
+                        : "--";
+                document.getElementById("statPassRate").className =
+                    "stat-value" +
+                    (totalExams > 0 && passed / totalExams >= 0.5
+                        ? " pass"
+                        : "");
+
+                if (QUESTION_BANK.length > 0) {
+                    document.getElementById("statTotal").textContent =
+                        QUESTION_BANK.length;
+                }
+
+                renderHistory();
+            }
+
+            function renderHistory() {
+                const history = APP.history;
+                const tbody = document.getElementById("historyBody");
+                const table = document.getElementById("historyTable");
+                const empty = document.getElementById("emptyHistory");
+
+                if (history.length === 0) {
+                    table.style.display = "none";
+                    empty.style.display = "block";
+                    return;
+                }
+
+                empty.style.display = "none";
+                table.style.display = "table";
+
+                const locale = APP.lang === "en" ? "en-US" : "zh-TW";
+                tbody.innerHTML = history
+                    .slice()
+                    .reverse()
+                    .map((h, i) => {
+                        const idx = history.length - i;
+                        const date = new Date(h.date);
+                        const dateStr = date.toLocaleDateString(locale, {
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                        });
+                        const timeStr = date.toLocaleTimeString(locale, {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        });
+                        const badgeClass = h.passed
+                            ? "badge-pass"
+                            : "badge-fail";
+                        const badgeText = h.passed
+                            ? t("historyBadgePass")
+                            : t("historyBadgeFail");
+                        const qLabel =
+                            APP.lang === "en"
+                                ? `${h.totalQuestions} Qs`
+                                : `${h.totalQuestions} 題`;
+
+                        return `<tr>
+      <td>${idx}</td>
+      <td>${dateStr}</td>
+      <td>${timeStr}</td>
+      <td>${qLabel}</td>
+      <td><strong>${h.score.toFixed(1)}%</strong></td>
+      <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+      <td>
+        <button class="btn btn-outline btn-sm" onclick="viewExamHistory('${h.id}')">${t("historyBtnView")}</button>
+        <button class="btn-export-md" onclick="exportHistoryItemMd('${h.id}')" title="Export Markdown">${t("historyBtnExport")}</button>
+        <button class="btn-delete-history" onclick="deleteExamHistory('${h.id}')" title="🗑️">🗑️</button>
+      </td>
+    </tr>`;
+                    })
+                    .join("");
+            }
+
+            function viewExamHistory(examId) {
+                const exam = APP.history.find((h) => h.id === examId);
+                if (!exam) return;
+                APP.reviewingExamId = examId;
+                renderResultView(exam);
+                showView("viewResult");
+            }
+
+            function deleteExamHistory(examId) {
+                if (!confirm(t("confirmDelete"))) return;
+                APP.history = APP.history.filter((h) => h.id !== examId);
+                saveHistory();
+                renderDashboard();
+            }
+
+            // ============================================================
+            // EXAM LOGIC
+            // ============================================================
+            function startExam() {
+                if (QUESTION_BANK.length === 0) {
+                    alert(t("alertNoBank"));
+                    return;
+                }
+
+                let count = parseInt(
+                    document.getElementById("cfgQuestionCount").value,
+                );
+                let timeLimit = parseInt(
+                    document.getElementById("cfgTimeLimit").value,
+                );
+                const eslChecked =
+                    document.getElementById("cfgEsl").checked && timeLimit > 0;
+
+                if (count === 0 || count > QUESTION_BANK.length)
+                    count = QUESTION_BANK.length;
+
+                // ESL +30 min accommodation
+                const eslBonus = eslChecked ? 30 : 0;
+                const effectiveTimeLimit =
+                    timeLimit > 0 ? timeLimit + eslBonus : 0;
+
+                // Shuffle and pick questions
+                const shuffled = [...QUESTION_BANK].sort(
+                    () => Math.random() - 0.5,
+                );
+                const selected = shuffled.slice(0, count);
+
+                APP.exam = {
+                    id: "exam_" + Date.now(),
+                    active: true,
+                    questions: selected,
+                    answers: new Array(count).fill(null), // array of arrays
+                    uncertainFlags: new Array(count).fill(false),
+                    currentIndex: 0,
+                    timeLimit: effectiveTimeLimit * 60, // seconds
+                    timeRemaining: effectiveTimeLimit * 60,
+                    startTime: Date.now(),
+                    totalQuestions: count,
+                    eslUsed: eslChecked,
+                    baseTimeLimit: timeLimit,
+                };
+
+                renderExamQuestion();
+                showView("viewExam");
+
+                if (timeLimit > 0) {
+                    startTimer();
+                }
+            }
+
+            function renderExamQuestion() {
+                const exam = APP.exam;
+                if (!exam) return;
+
+                const idx = exam.currentIndex;
+                const q = exam.questions[idx];
+                const userAnswers = exam.answers[idx] || [];
+
+                document.getElementById("examCurrentNum").textContent = idx + 1;
+                document.getElementById("examTotalNum").textContent =
+                    exam.totalQuestions;
+                document.getElementById("examProgressFill").style.width =
+                    ((idx + 1) / exam.totalQuestions) * 100 + "%";
+
+                const answeredCnt = exam.answers.filter(
+                    (a) => a && a.length > 0,
+                ).length;
+                document.getElementById("answeredCount").textContent = t(
+                    "answeredCount",
+                    { n: answeredCnt },
+                );
+
+                document.getElementById("questionBadge").textContent =
+                    `Question #${q.id}`;
+
+                if (q.numChoices > 1) {
+                    document.getElementById("multiBadge").style.display =
+                        "inline-block";
+                    document.getElementById("multiBadge").textContent = t(
+                        "multiBadgeText",
+                        { n: q.numChoices },
+                    );
+                } else {
+                    document.getElementById("multiBadge").style.display =
+                        "none";
+                }
+
+                document.getElementById("questionText").textContent =
+                    q.question;
+
+                const optionsHtml = Object.entries(q.options)
+                    .map(([letter, text]) => {
+                        const selected = userAnswers.includes(letter)
+                            ? "selected"
+                            : "";
+                        return `<div class="option-item ${selected}" onclick="selectOption('${letter}')" data-letter="${letter}">
+      <span class="option-letter">${letter}</span>
+      <span class="option-text">${escapeHtml(text)}</span>
+    </div>`;
+                    })
+                    .join("");
+
+                document.getElementById("optionsList").innerHTML = optionsHtml;
+
+                // Nav buttons
+                document.getElementById("btnPrev").disabled = idx === 0;
+                document.getElementById("btnPrev").style.opacity =
+                    idx === 0 ? "0.4" : "1";
+                const nextSpan = document.querySelector("#btnNext [data-i18n]");
+                if (nextSpan) {
+                    if (idx === exam.totalQuestions - 1) {
+                        nextSpan.removeAttribute("data-i18n");
+                        nextSpan.textContent = t("btnFinish");
+                    } else {
+                        nextSpan.setAttribute("data-i18n", "btnNext");
+                        nextSpan.textContent = t("btnNext");
+                    }
+                }
+
+                // Uncertain button state
+                const isUncertain = exam.uncertainFlags && exam.uncertainFlags[idx];
+                const btnU = document.getElementById("btnUncertain");
+                const lblU = document.getElementById("uncertainBtnLabel");
+                if (isUncertain) {
+                    btnU.classList.add("marked");
+                    lblU.textContent = t("btnUnmarkUncertain");
+                } else {
+                    btnU.classList.remove("marked");
+                    lblU.textContent = t("btnMarkUncertain");
+                }
+
+                // Update question grid if open
+                updateQuestionGrid();
+            }
+
+            function selectOption(letter) {
+                const exam = APP.exam;
+                if (!exam || !exam.active) return;
+
+                const idx = exam.currentIndex;
+                const q = exam.questions[idx];
+                let userAnswers = exam.answers[idx] || [];
+
+                if (q.numChoices > 1) {
+                    // Multi-select
+                    if (userAnswers.includes(letter)) {
+                        userAnswers = userAnswers.filter((l) => l !== letter);
+                    } else {
+                        if (userAnswers.length >= q.numChoices) {
+                            // Remove first selected, add new
+                            userAnswers.shift();
+                        }
+                        userAnswers.push(letter);
+                    }
+                } else {
+                    // Single select
+                    userAnswers = [letter];
+                }
+
+                exam.answers[idx] = userAnswers;
+                renderExamQuestion();
+            }
+
+            function toggleUncertain() {
+                const exam = APP.exam;
+                if (!exam || !exam.active) return;
+                const idx = exam.currentIndex;
+                if (!exam.uncertainFlags) exam.uncertainFlags = new Array(exam.totalQuestions).fill(false);
+                exam.uncertainFlags[idx] = !exam.uncertainFlags[idx];
+                renderExamQuestion();
+                updateQuestionGrid();
+            }
+
+            function prevQuestion() {
+                if (!APP.exam || APP.exam.currentIndex <= 0) return;
+                APP.exam.currentIndex--;
+                renderExamQuestion();
+                window.scrollTo(0, 0);
+            }
+
+            function nextQuestion() {
+                if (!APP.exam) return;
+                if (APP.exam.currentIndex >= APP.exam.totalQuestions - 1) {
+                    confirmSubmit();
+                    return;
+                }
+                APP.exam.currentIndex++;
+                renderExamQuestion();
+                window.scrollTo(0, 0);
+            }
+
+            function goToQuestion(idx) {
+                if (!APP.exam) return;
+                APP.exam.currentIndex = idx;
+                renderExamQuestion();
+                toggleQuestionGrid();
+                window.scrollTo(0, 0);
+            }
+
+            // ============================================================
+            // QUESTION GRID
+            // ============================================================
+            function toggleQuestionGrid() {
+                const panel = document.getElementById("gridPanel");
+                const overlay = document.getElementById("gridOverlay");
+                const isOpen = panel.classList.contains("open");
+
+                if (isOpen) {
+                    panel.classList.remove("open");
+                    overlay.classList.remove("open");
+                } else {
+                    updateQuestionGrid();
+                    panel.classList.add("open");
+                    overlay.classList.add("open");
+                }
+            }
+
+            function updateQuestionGrid() {
+                if (!APP.exam) return;
+
+                const grid = document.getElementById("questionGrid");
+                const exam = APP.exam;
+
+                grid.innerHTML = exam.questions
+                    .map((q, i) => {
+                        const answered =
+                            exam.answers[i] && exam.answers[i].length > 0;
+                        const current = i === exam.currentIndex;
+                        const uncertain = exam.uncertainFlags && exam.uncertainFlags[i];
+                        let cls = "q-btn";
+                        if (answered) cls += " answered";
+                        if (current) cls += " current";
+                        if (uncertain) cls += " uncertain";
+                        return `<button class="${cls}" onclick="goToQuestion(${i})" title="${t("gridTitle", { n: i + 1 })}">${i + 1}</button>`;
+                    })
+                    .join("");
+            }
+
+            // ============================================================
+            // TIMER
+            // ============================================================
+            function startTimer() {
+                updateTimerDisplay();
+                APP.timerInterval = setInterval(() => {
+                    if (!APP.exam || !APP.exam.active) {
+                        stopTimer();
+                        return;
+                    }
+
+                    APP.exam.timeRemaining--;
+
+                    if (APP.exam.timeRemaining <= 0) {
+                        APP.exam.timeRemaining = 0;
+                        stopTimer();
+                        timeUp();
+                        return;
+                    }
+
+                    updateTimerDisplay();
+                }, 1000);
+            }
+
+            function stopTimer() {
+                if (APP.timerInterval) {
+                    clearInterval(APP.timerInterval);
+                    APP.timerInterval = null;
+                }
+            }
+
+            function updateTimerDisplay() {
+                if (!APP.exam) return;
+                const t = APP.exam.timeRemaining;
+                const h = Math.floor(t / 3600);
+                const m = Math.floor((t % 3600) / 60);
+                const s = t % 60;
+
+                const display = document.getElementById("timerDisplay");
+                display.textContent = `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+
+                // Warning when < 5 minutes
+                if (t <= 300 && t > 0) {
+                    display.classList.add("warning");
+                } else {
+                    display.classList.remove("warning");
+                }
+            }
+
+            function timeUp() {
+                document.getElementById("timeUpModal").classList.add("open");
+            }
+
+            function forceSubmit() {
+                document.getElementById("timeUpModal").classList.remove("open");
+                submitExam();
+            }
+
+            // ============================================================
+            // SUBMIT
+            // ============================================================
+            function confirmSubmit() {
+                const exam = APP.exam;
+                if (!exam) return;
+
+                const unanswered = exam.answers.filter(
+                    (a) => !a || a.length === 0,
+                ).length;
+                const msg =
+                    unanswered > 0
+                        ? t("modalSubmitMsgPartial", { n: unanswered })
+                        : t("modalSubmitMsgAll");
+
+                document.getElementById("submitModalText").textContent = msg;
+                document.getElementById("submitModal").classList.add("open");
+            }
+
+            function closeSubmitModal() {
+                document.getElementById("submitModal").classList.remove("open");
+            }
+
+            function submitExam() {
+                closeSubmitModal();
+                if (!APP.exam) return;
+
+                const exam = APP.exam;
+                exam.active = false;
+                stopTimer();
+
+                // Calculate results
+                let correct = 0;
+                let wrong = 0;
+                let unanswered = 0;
+                const details = [];
+
+                exam.questions.forEach((q, i) => {
+                    const userAns = exam.answers[i] || [];
+                    const correctAns = q.correctAnswers || [];
+                    const isCorrect =
+                        correctAns.length > 0 &&
+                        userAns.length === correctAns.length &&
+                        userAns.sort().join(",") ===
+                            [...correctAns].sort().join(",");
+
+                    if (userAns.length === 0) {
+                        unanswered++;
+                    } else if (correctAns.length === 0) {
+                        // no standard answer — not counted as wrong or correct
+                    } else if (isCorrect) {
+                        correct++;
+                    } else {
+                        wrong++;
+                    }
+
+                    details.push({
+                        questionId: q.id,
+                        question: q.question,
+                        options: q.options,
+                        userAnswers: userAns,
+                        correctAnswers: correctAns,
+                        isCorrect: isCorrect,
+                        isUnanswered: userAns.length === 0,
+                        hasNoAnswer: correctAns.length === 0,
+                        isUncertain: exam.uncertainFlags ? !!exam.uncertainFlags[i] : false,
+                        explanation: q.explanation || "",
+                        numChoices: q.numChoices,
+                    });
+                });
+
+                const totalQuestions = exam.totalQuestions;
+                const score = (correct / totalQuestions) * 100;
+                const passed = score >= 72;
+                const timeSpent =
+                    exam.timeLimit > 0
+                        ? exam.timeLimit - exam.timeRemaining
+                        : Math.floor((Date.now() - exam.startTime) / 1000);
+
+                const result = {
+                    id: exam.id,
+                    date: new Date().toISOString(),
+                    totalQuestions,
+                    correct,
+                    wrong,
+                    unanswered,
+                    score,
+                    passed,
+                    timeSpent,
+                    timeLimit: exam.timeLimit,
+                    baseTimeLimit: exam.baseTimeLimit || exam.timeLimit,
+                    eslUsed: exam.eslUsed || false,
+                    details,
+                };
+
+                APP.history.push(result);
+                saveHistory();
+
+                renderResultView(result);
+                showView("viewResult");
+            }
+
+            // ============================================================
+            // RESULT VIEW
+            // ============================================================
+            // Store latest result reference for export
+            function renderResultView(result) {
+                APP._currentResultId = result.id;
+                const circle = document.getElementById("scoreCircle");
+                const scoreVal = document.getElementById("scoreValue");
+                const status = document.getElementById("resultStatus");
+
+                scoreVal.textContent = result.score.toFixed(1) + "%";
+                circle.className =
+                    "score-circle " + (result.passed ? "pass" : "fail");
+                status.textContent = result.passed
+                    ? t("resultPass")
+                    : t("resultFail");
+                status.className =
+                    "result-status " + (result.passed ? "pass" : "fail");
+
+                const timeStr = formatTime(result.timeSpent);
+                const timeLimitStr =
+                    result.timeLimit > 0
+                        ? formatTime(result.timeLimit)
+                        : t("timeLimitNone");
+
+                const eslNote = result.eslUsed
+                    ? `<span style="font-size:12px;color:var(--accent);margin-left:4px;">${t("mdEslNote")}</span>`
+                    : "";
+
+                document.getElementById("resultDetails").innerHTML = `
+    <div class="detail-item">
+      <div class="label">${t("detailCorrect")}</div>
+      <div class="value" style="color:var(--success)">${result.correct}</div>
+    </div>
+    <div class="detail-item">
+      <div class="label">${t("detailWrong")}</div>
+      <div class="value" style="color:var(--danger)">${result.wrong}</div>
+    </div>
+    <div class="detail-item">
+      <div class="label">${t("detailUnanswered")}</div>
+      <div class="value" style="color:var(--text-light)">${result.unanswered}</div>
+    </div>
+    <div class="detail-item">
+      <div class="label">${t("detailTotal")}</div>
+      <div class="value">${result.totalQuestions}</div>
+    </div>
+    <div class="detail-item">
+      <div class="label">${t("detailTime")}</div>
+      <div class="value">${timeStr}${eslNote}</div>
+    </div>
+    <div class="detail-item">
+      <div class="label">${t("detailPassScore")}</div>
+      <div class="value">72%</div>
+    </div>
+  `;
+
+                renderReviewList(result.details, "all");
+                renderSafetySection(result);
+            }
+
+            function renderReviewList(details, filter) {
+                const list = document.getElementById("reviewList");
+
+                const filtered = details.filter((d) => {
+                    if (filter === "all") return true;
+                    if (filter === "correct") return d.isCorrect;
+                    if (filter === "wrong")
+                        return !d.isCorrect && !d.isUnanswered && !d.hasNoAnswer && (d.correctAnswers && d.correctAnswers.length > 0);
+                    if (filter === "unanswered") return d.isUnanswered;
+                    if (filter === "uncertain") return !!d.isUncertain;
+                    return true;
+                });
+
+                if (filtered.length === 0) {
+                    list.innerHTML = `<div class="empty-state"><p>${t("emptyFilter")}</p></div>`;
+                    return;
+                }
+
+                list.innerHTML = filtered
+                    .map((d, i) => {
+                        let itemClass = "review-item ";
+                        let statusBadge = "";
+                        const noAnswer = d.hasNoAnswer || (!d.correctAnswers || d.correctAnswers.length === 0);
+                        if (d.isUnanswered) {
+                            itemClass += "unanswered-item";
+                            statusBadge = `<span class="badge" style="background:#f0f0f0;color:#666;">${t("reviewBadgeUnanswered")}</span>`;
+                        } else if (noAnswer) {
+                            itemClass += "unanswered-item";
+                            statusBadge = `<span class="badge" style="background:#f0f0f0;color:#666;">${t("reviewBadgeNoAnswer")}</span>`;
+                        } else if (d.isCorrect) {
+                            itemClass += "correct-item";
+                            statusBadge = `<span class="badge badge-pass">${t("reviewBadgeCorrect")}</span>`;
+                        } else {
+                            itemClass += "wrong-item";
+                            statusBadge = `<span class="badge badge-fail">${t("reviewBadgeWrong")}</span>`;
+                        }
+                        if (d.isUncertain) {
+                            itemClass += " uncertain-item";
+                            statusBadge += ` <span class="badge badge-uncertain">${t("reviewBadgeUncertain")}</span>`;
+                        }
+
+                        const optionsHtml = Object.entries(d.options)
+                            .map(([letter, text]) => {
+                                const isUserPick =
+                                    d.userAnswers.includes(letter);
+                                const isCorrectOpt =
+                                    d.correctAnswers.includes(letter);
+                                const noAnswer = d.hasNoAnswer || (!d.correctAnswers || d.correctAnswers.length === 0);
+
+                                let optClass = "option-item review-neutral";
+                                if (isCorrectOpt)
+                                    optClass = "option-item correct";
+                                else if (isUserPick && noAnswer)
+                                    optClass = "option-item correct";
+                                else if (isUserPick && !isCorrectOpt)
+                                    optClass = "option-item wrong";
+
+                                let indicator = "";
+                                if (isCorrectOpt && isUserPick)
+                                    indicator = t("reviewIndicatorCorrect");
+                                else if (isCorrectOpt)
+                                    indicator = t("reviewIndicatorAnswer");
+                                else if (isUserPick)
+                                    indicator = t("reviewIndicatorYour");
+
+                                return `<div class="${optClass}">
+        <span class="option-letter">${letter}</span>
+        <span class="option-text">${escapeHtml(text)}${indicator}</span>
+      </div>`;
+                            })
+                            .join("");
+
+                        const noAnswerNotice =
+                            d.correctAnswers.length === 0
+                                ? `<div class="no-answer-notice">${t("noAnswerNotice")}</div>`
+                                : "";
+
+                        const cleanExplanation = d.explanation
+                            ? d.explanation.split(/\s*IMP>{3,}/)[0].trim()
+                            : "";
+                        const explanationHtml = cleanExplanation
+                            ? `<div class="explanation-box">
+          <div class="explanation-title">${t("explanationTitle")}</div>
+          ${escapeHtml(cleanExplanation)}
+        </div>`
+                            : "";
+
+                        const multiHint =
+                            d.numChoices > 1
+                                ? `<span style="font-size:12px;color:var(--accent);margin-left:8px;">${t("multiHint", { n: d.numChoices })}</span>`
+                                : "";
+
+                        const existingNote = APP.notes[d.questionId] || "";
+                        const noteHtml = `
+      <div class="review-note-section">
+        <button class="btn-note-toggle${existingNote ? " has-note" : ""}"
+                id="note-toggle-btn-${d.questionId}"
+                onclick="toggleNote('${d.questionId}')">
+          ${existingNote ? t("noteEdit") : t("noteAdd")}
+        </button>
+        <div class="review-note-preview" id="note-preview-${d.questionId}" style="${existingNote ? "" : "display:none"}">
+          <span class="note-preview-label">${t("noteLabel")}</span>
+          <span class="note-preview-text">${escapeHtml(existingNote)}</span>
+        </div>
+        <div class="review-note-editor" id="note-editor-${d.questionId}" style="display:none">
+          <textarea class="note-textarea" id="note-textarea-${d.questionId}"
+                    placeholder="${t("notePlaceholder")}"
+                    rows="4">${escapeHtml(existingNote)}</textarea>
+          <div class="note-editor-actions">
+            <button class="btn btn-primary btn-sm" onclick="saveNote('${d.questionId}')">${t("noteSave")}</button>
+            <button class="btn btn-outline btn-sm" onclick="toggleNote('${d.questionId}')">${t("noteCancel")}</button>
+            ${existingNote ? `<button class="btn-note-delete" onclick="deleteNote('${d.questionId}')">${t("noteDelete")}</button>` : ""}
+          </div>
+        </div>
+      </div>`;
+
+                        return `<div class="${itemClass}">
+      <div class="review-header">
+        <span class="review-q-num">Question #${d.questionId}${multiHint}</span>
+        ${statusBadge}
+      </div>
+      <div class="question-text" style="font-size:14px;margin-bottom:16px;">${escapeHtml(d.question)}</div>
+      <div class="options-list" style="gap:8px;">
+        ${optionsHtml}
+      </div>
+      ${noAnswerNotice}
+      ${explanationHtml}
+      ${noteHtml}
+    </div>`;
+                    })
+                    .join("");
+            }
+
+            // ============================================================
+            // MARKDOWN EXPORT
+            // ============================================================
+            function buildMarkdown(result) {
+                const date = new Date(result.date);
+                const locale = APP.lang === "en" ? "en-US" : "zh-TW";
+                const dateStr = date.toLocaleString(locale);
+                const timeLimitStr =
+                    result.timeLimit > 0
+                        ? formatTime(result.timeLimit)
+                        : t("mdTimeLimitNone");
+                const eslLine = result.eslUsed ? ` ${t("mdEslNote")}` : "";
+
+                let md = [];
+
+                // Header
+                md.push(`# ${t("mdTitle")}`);
+                md.push(``);
+
+                // Summary table
+                md.push(`## ${t("mdExamInfo")}`);
+                md.push(``);
+                md.push(`| ${t("mdDate")} | ${dateStr} |`);
+                md.push(`|---|---|`);
+                md.push(
+                    `| ${t("mdScore")} | **${result.score.toFixed(1)}%** |`,
+                );
+                md.push(
+                    `| ${t("mdResult")} | ${result.passed ? t("mdResultPass") : t("mdResultFail")} |`,
+                );
+                md.push(`| ${t("mdCorrect")} | ${result.correct} |`);
+                md.push(`| ${t("mdWrong")} | ${result.wrong} |`);
+                md.push(`| ${t("mdUnanswered")} | ${result.unanswered} |`);
+                md.push(`| ${t("mdTotal")} | ${result.totalQuestions} |`);
+                md.push(
+                    `| ${t("mdTimeSpent")} | ${formatTime(result.timeSpent)}${eslLine} |`,
+                );
+                md.push(`| ${t("mdTimeLimit")} | ${timeLimitStr}${eslLine} |`);
+                md.push(`| ${t("mdPassScore")} | 72% |`);
+                md.push(``);
+
+                // Per-question details
+                md.push(`## ${t("mdDetailTitle")}`);
+                md.push(``);
+
+                result.details.forEach((d, i) => {
+                    const statusStr = d.isUnanswered
+                        ? t("mdStatusUnanswered")
+                        : d.isCorrect
+                          ? t("mdStatusCorrect")
+                          : t("mdStatusWrong");
+
+                    const multiNote =
+                        d.numChoices > 1
+                            ? ` _(${t("mdMultiSelect", { n: d.numChoices })})_`
+                            : "";
+
+                    const uncertainNote = d.isUncertain
+                        ? ` **${t("mdUncertainNote")}**`
+                        : "";
+
+                    md.push(
+                        `### Q${i + 1}. Question #${d.questionId}${multiNote}`,
+                    );
+                    md.push(``);
+                    md.push(`> ${d.question.replace(/\n/g, "\n> ")}`);
+                    md.push(``);
+
+                    // Options
+                    Object.entries(d.options).forEach(([letter, text]) => {
+                        const isUser = d.userAnswers.includes(letter);
+                        const isCorrect = d.correctAnswers.includes(letter);
+                        let prefix = "- ";
+                        let suffix = "";
+                        if (isCorrect && isUser) {
+                            prefix = "- ✅ **";
+                            suffix = "** _(correct + your choice)_";
+                        } else if (isCorrect) {
+                            prefix = "- ✅ **";
+                            suffix = "** _(correct answer)_";
+                        } else if (isUser) {
+                            prefix = "- ❌ ~~";
+                            suffix = "~~ _(your choice)_";
+                        }
+                        md.push(`${prefix}${letter}. ${text}${suffix}`);
+                    });
+
+                    md.push(``);
+
+                    const yourAnsStr =
+                        d.userAnswers.length > 0
+                            ? d.userAnswers.join(", ")
+                            : t("mdNoAnswer");
+                    const correctAnsStr =
+                        d.correctAnswers.length > 0
+                            ? d.correctAnswers.join(", ")
+                            : t("mdNoAnswer");
+
+                    md.push(`**${t("mdYourAnswer")}:** ${yourAnsStr}  `);
+                    md.push(`**${t("mdCorrectAnswer")}:** ${correctAnsStr}  `);
+                    md.push(`**${t("mdResult")}:** ${statusStr}${uncertainNote}`);
+                    md.push(``);
+
+                    const mdExplanation = d.explanation ? d.explanation.split(/\s*IMP>{3,}/)[0].trim() : "";
+                    if (mdExplanation) {
+                        md.push(
+                            `> 📘 **${t("mdExplanation")}:** ${mdExplanation.replace(/\n/g, "\n> ")}`,
+                        );
+                        md.push(``);
+                    }
+
+                    const noteText = APP.notes[d.questionId];
+                    if (noteText) {
+                        md.push(
+                            `> 📝 **${t("mdNoteTitle")}:** ${noteText.replace(/\n/g, "\n> ")}`,
+                        );
+                        md.push(``);
+                    }
+
+                    md.push(`---`);
+                    md.push(``);
+                });
+
+                return md.join("\n");
+            }
+
+            function downloadMarkdown(result) {
+                const md = buildMarkdown(result);
+                const blob = new Blob([md], {
+                    type: "text/markdown;charset=utf-8",
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                const date = new Date(result.date);
+                const stamp = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, "0")}${String(date.getDate()).padStart(2, "0")}_${String(date.getHours()).padStart(2, "0")}${String(date.getMinutes()).padStart(2, "0")}`;
+                a.href = url;
+                a.download = `aws_saa_exam_${stamp}.md`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            function exportCurrentResultMd() {
+                let result = null;
+                if (APP._currentResultId) {
+                    result = APP.history.find(
+                        (h) => h.id === APP._currentResultId,
+                    );
+                }
+                if (!result) {
+                    result = APP.history[APP.history.length - 1];
+                }
+                if (result) downloadMarkdown(result);
+            }
+
+            function exportHistoryItemMd(examId) {
+                const result = APP.history.find((h) => h.id === examId);
+                if (result) downloadMarkdown(result);
+            }
+
+            function filterReview(filter, btn) {
+                document
+                    .querySelectorAll(".review-filter .filter-btn")
+                    .forEach((b) => b.classList.remove("active"));
+                btn.classList.add("active");
+
+                // Get current details
+                let details;
+                if (APP.reviewingExamId) {
+                    const exam = APP.history.find(
+                        (h) => h.id === APP.reviewingExamId,
+                    );
+                    if (exam) details = exam.details;
+                } else if (APP.exam) {
+                    // Current exam result
+                    const lastResult = APP.history[APP.history.length - 1];
+                    if (lastResult) details = lastResult.details;
+                }
+
+                if (!details) {
+                    const lastResult = APP.history[APP.history.length - 1];
+                    if (lastResult) details = lastResult.details;
+                }
+
+                if (details) {
+                    renderReviewList(details, filter);
+                }
+            }
+
+            function scrollToReview() {
+                document
+                    .getElementById("reviewSection")
+                    .scrollIntoView({ behavior: "smooth" });
+            }
+
+            // ============================================================
+            // SAFETY SCORE BAR
+            // ============================================================
+            function renderSafetySection(result) {
+                const score = result.score;
+                const clamped = Math.min(98, Math.max(2, score)); // keep label inside bar
+
+                let levelClass, levelIcon, levelText;
+                if (score < 72) {
+                    levelClass = "level-fail"; levelIcon = "❌"; levelText = t("safetyLevelFail");
+                } else if (score < 80) {
+                    levelClass = "level-pass"; levelIcon = "⚠️"; levelText = t("safetyLevelPass");
+                } else if (score < 85) {
+                    levelClass = "level-safe"; levelIcon = "🎯"; levelText = t("safetyLevelSafe");
+                } else {
+                    levelClass = "level-excellent"; levelIcon = "🌟"; levelText = t("safetyLevelExcellent");
+                }
+
+                const ticks = [
+                    { pct: 0,    label: "0%"      },
+                    { pct: 72,   label: "72%"     },
+                    { pct: 82.5, label: "80–85%"  },
+                    { pct: 100,  label: "100%"    },
+                ];
+
+                document.getElementById("safetySection").innerHTML = `
+                <div class="safety-section">
+                  <div class="safety-section-title">${t("safetyTitle")}</div>
+                  <div class="safety-bar-wrap">
+                    <div class="safety-bar-track">
+                      <div class="safety-threshold-line" style="left:72%"></div>
+                      <div class="safety-threshold-line" style="left:80%"></div>
+                      <div class="safety-threshold-line" style="left:85%"></div>
+                      <div class="safety-bar-marker" style="left:${clamped}%">
+                        <div class="safety-bar-marker-label">${score.toFixed(1)}%</div>
+                        <div class="safety-bar-marker-arrow"></div>
+                      </div>
+                    </div>
+                    <div class="safety-bar-ticks">
+                      ${ticks.map(tk => `<span class="safety-bar-tick" style="left:${tk.pct}%">${tk.label}</span>`).join("")}
+                    </div>
+                  </div>
+                  <div class="safety-zone-legend">
+                    <span class="safety-zone-legend-item"><span class="safety-zone-dot" style="background:#ef4444"></span>${t("safetyZoneFail")}</span>
+                    <span class="safety-zone-legend-item"><span class="safety-zone-dot" style="background:#f59e0b"></span>${t("safetyZonePass")}</span>
+                    <span class="safety-zone-legend-item"><span class="safety-zone-dot" style="background:#86efac"></span>${t("safetyZoneSafe")}</span>
+                    <span class="safety-zone-legend-item"><span class="safety-zone-dot" style="background:#22c55e"></span>${t("safetyZoneExcellent")}</span>
+                  </div>
+                  <div class="safety-level-badge ${levelClass}">
+                    <span style="font-size:20px;line-height:1">${levelIcon}</span>
+                    <span>${levelText}</span>
+                  </div>
+                </div>`;
+            }
+
+            // ============================================================
+            // SCORING INFO MODAL
+            // ============================================================
+            function openScoringModal() {
+                document.getElementById("scoringModalTitle").textContent = t("scoringModalTitle");
+                document.getElementById("scoringModalBody").innerHTML = buildScoringContent();
+                document.getElementById("scoringModal").classList.add("open");
+            }
+
+            function closeScoringModal(e) {
+                if (e && e.target !== document.getElementById("scoringModal")) return;
+                document.getElementById("scoringModal").classList.remove("open");
+            }
+
+            function buildScoringContent() {
+                const isEn = APP.lang === "en";
+                const items = isEn ? [
+                    { icon:"🎯", title:"Scaled Scoring System",
+                      desc:"The official exam uses a <strong>100–1000</strong> scaled score. The passing score is <strong>720</strong> (≈ 72%). This is not a direct percentage conversion — it is dynamically adjusted based on question difficulty across different exam versions.", highlight:false },
+                    { icon:"⚖️", title:"Question Weighting",
+                      desc:"Different questions carry different point values based on difficulty and importance. Harder questions may be worth more points than easier ones.", highlight:false },
+                    { icon:"✅", title:"No Penalty for Guessing",
+                      desc:"Wrong answers and unanswered questions do <strong>not</strong> deduct points. Always attempt every question — even if you are unsure of the answer.", highlight:false },
+                    { icon:"🔬", title:"Unscored (Pilot) Items",
+                      desc:"Each exam contains some <strong>unscored experimental questions</strong> that do not count toward your final score. You cannot tell which questions are unscored during the exam.", highlight:false },
+                    { icon:"💻", title:"How This Simulator Calculates",
+                      desc:"This system uses <strong>correct ÷ total questions</strong> as a simple percentage for practice reference. It differs from the official scaled score and does not represent your actual exam result.", highlight:false },
+                    { icon:"🏆", title:"Industry-Recommended Practice Target",
+                      desc:"Aim to consistently score <strong>80–85%+</strong> on practice exams before taking the real exam. The 72% passing threshold is the minimum — real exam scaling and difficulty variance mean you need a comfortable scoring buffer.", highlight:true },
+                ] : [
+                    { icon:"🎯", title:"縮放計分制（Scaled Scoring）",
+                      desc:"正式考試採用 <strong>100–1000 分</strong>縮放計分，通過分數為 <strong>720 分</strong>（約 72%）。這不是答對百分比的直接換算，而是根據不同版本的題目難度動態調整的縮放分數。", highlight:false },
+                    { icon:"⚖️", title:"題目加權（Question Weighting）",
+                      desc:"不同題目具有不同分值，難度較高或重要性較強的題目可能佔更多分數。答對較難的題目對分數提升的幫助更大。", highlight:false },
+                    { icon:"✅", title:"無猜題懲罰（No Penalty for Guessing）",
+                      desc:"答錯或未作答均<strong>不扣分</strong>。建議所有題目都填寫答案，即使不確定也一定要作答，不要留空白。", highlight:false },
+                    { icon:"🔬", title:"未計分試驗題（Unscored / Pilot Items）",
+                      desc:"每場考試包含若干<strong>實驗性題目</strong>，不計入最終成績。但考生在考試過程中<strong>無法判斷</strong>哪些是試驗題，需每題全力作答。", highlight:false },
+                    { icon:"💻", title:"本系統計算方式",
+                      desc:"本系統以<strong>答對題數 ÷ 總題數</strong>計算百分比作為練習參考，與正式考試縮放分數存在差異，不代表正式考試的實際得分。", highlight:false },
+                    { icon:"🏆", title:"業界建議練習目標",
+                      desc:"模擬考建議穩定達到 <strong>80–85%</strong> 以上再報考。72% 僅是最低及格線，正式考試因縮放計分與版本差異，保留足夠的分數緩衝才能在正式考試中更有把握。", highlight:true },
+                ];
+
+                const footer = isEn
+                    ? "Source: AWS Official Exam Guide · For reference only"
+                    : "資料來源：AWS 官方考試指南 · 本資訊僅供參考";
+
+                return `<div class="scoring-info-list">
+                  ${items.map(it => `
+                    <div class="scoring-info-item${it.highlight ? " highlight" : ""}">
+                      <span class="scoring-info-icon">${it.icon}</span>
+                      <div>
+                        <div class="scoring-info-title">${it.title}</div>
+                        <div class="scoring-info-desc">${it.desc}</div>
+                      </div>
+                    </div>`).join("")}
+                </div>
+                <div class="scoring-modal-footer">${footer}</div>`;
+            }
+
+            // ============================================================
+            // PERSISTENCE
+            // ============================================================
+            function saveHistory() {
+                try {
+                    // Compress: only save what's needed
+                    const toSave = APP.history.map((h) => ({
+                        id: h.id,
+                        date: h.date,
+                        totalQuestions: h.totalQuestions,
+                        correct: h.correct,
+                        wrong: h.wrong,
+                        unanswered: h.unanswered,
+                        score: h.score,
+                        passed: h.passed,
+                        timeSpent: h.timeSpent,
+                        timeLimit: h.timeLimit,
+                        baseTimeLimit: h.baseTimeLimit,
+                        eslUsed: h.eslUsed || false,
+                        details: h.details,
+                    }));
+                    localStorage.setItem(
+                        "aws_saa_history",
+                        JSON.stringify(toSave),
+                    );
+                } catch (e) {
+                    console.warn("Failed to save history:", e);
+                    // If localStorage is full, try to trim old records
+                    if (
+                        e.name === "QuotaExceededError" &&
+                        APP.history.length > 5
+                    ) {
+                        APP.history = APP.history.slice(-5);
+                        try {
+                            localStorage.setItem(
+                                "aws_saa_history",
+                                JSON.stringify(APP.history),
+                            );
+                        } catch (e2) {
+                            console.error(
+                                "Still cannot save after trimming:",
+                                e2,
+                            );
+                        }
+                    }
+                }
+            }
+
+            function loadHistory() {
+                try {
+                    const data = localStorage.getItem("aws_saa_history");
+                    if (data) {
+                        APP.history = JSON.parse(data);
+                    }
+                } catch (e) {
+                    console.warn("Failed to load history:", e);
+                    APP.history = [];
+                }
+            }
+
+            // ============================================================
+            // NOTES
+            // ============================================================
+            function loadNotes() {
+                try {
+                    const data = localStorage.getItem("aws_saa_notes");
+                    if (data) APP.notes = JSON.parse(data);
+                } catch (e) {
+                    APP.notes = {};
+                }
+            }
+
+            function saveNotes() {
+                try {
+                    localStorage.setItem("aws_saa_notes", JSON.stringify(APP.notes));
+                } catch (e) {
+                    console.warn("Failed to save notes:", e);
+                }
+            }
+
+            function toggleNote(qid) {
+                const editor = document.getElementById("note-editor-" + qid);
+                if (!editor) return;
+                const isOpen = editor.style.display !== "none";
+                if (isOpen) {
+                    editor.style.display = "none";
+                } else {
+                    const ta = document.getElementById("note-textarea-" + qid);
+                    if (ta) ta.value = APP.notes[qid] || "";
+                    editor.style.display = "flex";
+                    if (ta) ta.focus();
+                }
+            }
+
+            function saveNote(qid) {
+                const ta = document.getElementById("note-textarea-" + qid);
+                if (!ta) return;
+                const val = ta.value.trim();
+                if (val) {
+                    APP.notes[qid] = val;
+                } else {
+                    delete APP.notes[qid];
+                }
+                saveNotes();
+                _refreshNoteUI(qid, val);
+                document.getElementById("note-editor-" + qid).style.display = "none";
+            }
+
+            function deleteNote(qid) {
+                delete APP.notes[qid];
+                saveNotes();
+                const ta = document.getElementById("note-textarea-" + qid);
+                if (ta) ta.value = "";
+                _refreshNoteUI(qid, "");
+                document.getElementById("note-editor-" + qid).style.display = "none";
+            }
+
+            function _refreshNoteUI(qid, val) {
+                const preview = document.getElementById("note-preview-" + qid);
+                const toggleBtn = document.getElementById("note-toggle-btn-" + qid);
+                if (preview) {
+                    const textEl = preview.querySelector(".note-preview-text");
+                    if (val) {
+                        if (textEl) textEl.textContent = val;
+                        preview.style.display = "block";
+                    } else {
+                        preview.style.display = "none";
+                    }
+                }
+                if (toggleBtn) {
+                    if (val) {
+                        toggleBtn.textContent = t("noteEdit");
+                        toggleBtn.classList.add("has-note");
+                    } else {
+                        toggleBtn.textContent = t("noteAdd");
+                        toggleBtn.classList.remove("has-note");
+                    }
+                }
+            }
+
+            // ============================================================
+            // UTILITIES
+            // ============================================================
+            function escapeHtml(text) {
+                const div = document.createElement("div");
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            function formatTime(seconds) {
+                const h = Math.floor(seconds / 3600);
+                const m = Math.floor((seconds % 3600) / 60);
+                const s = seconds % 60;
+                if (h > 0) {
+                    return t("timeFormatHMS", { h, m, s });
+                }
+                return t("timeFormatMS", { m, s });
+            }
+
+            // ============================================================
+            // KEYBOARD SHORTCUTS
+            // ============================================================
+            document.addEventListener("keydown", function (e) {
+                if (
+                    APP.currentView !== "viewExam" ||
+                    !APP.exam ||
+                    !APP.exam.active
+                )
+                    return;
+
+                if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+                    e.preventDefault();
+                    prevQuestion();
+                } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+                    e.preventDefault();
+                    nextQuestion();
+                } else if (e.key >= "a" && e.key <= "f") {
+                    const letter = e.key.toUpperCase();
+                    const q = APP.exam.questions[APP.exam.currentIndex];
+                    if (q.options[letter]) {
+                        selectOption(letter);
+                    }
+                } else if (e.key >= "A" && e.key <= "F") {
+                    const letter = e.key.toUpperCase();
+                    const q = APP.exam.questions[APP.exam.currentIndex];
+                    if (q.options[letter]) {
+                        selectOption(letter);
+                    }
+                }
+            });
+
+            // Warn before leaving during exam
+            window.addEventListener("beforeunload", function (e) {
+                if (APP.exam && APP.exam.active) {
+                    e.preventDefault();
+                    e.returnValue = t("beforeUnload");
+                    return e.returnValue;
+                }
+            });
+
+            // ============================================================
+            // START
+            // ============================================================
+            init();
+        </script>
+    </body>
+</html>
