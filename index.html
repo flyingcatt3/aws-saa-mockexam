@@ -418,7 +418,6 @@
                 font-size: 13px;
                 line-height: 1.65;
                 color: var(--text);
-                white-space: pre-wrap;
                 word-break: break-word;
             }
             [data-theme="dark"] .review-note-preview {
@@ -436,6 +435,10 @@
             }
             [data-theme="dark"] .review-note-preview .note-preview-label {
                 color: #93c5fd;
+            }
+            .review-note-preview .note-preview-text {
+                display: block;
+                white-space: pre-wrap;
             }
 
             .review-note-editor {
