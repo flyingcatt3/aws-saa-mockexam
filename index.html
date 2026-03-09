@@ -91,6 +91,7 @@
                 transition:
                     background 0.3s,
                     color 0.3s;
+                scrollbar-gutter: stable;
             }
 
             .header {
@@ -1399,6 +1400,9 @@
                 display: flex;
                 align-items: center;
                 gap: 6px;
+                min-width: 120px;
+                justify-content: center;
+                white-space: nowrap;
             }
             .home-btn-header:hover {
                 background: rgba(255, 255, 255, 0.1);
@@ -2561,15 +2565,15 @@
             }
 
             function applyTheme() {
-                if (APP.dark) {
-                    document.documentElement.setAttribute("data-theme", "dark");
-                    document.getElementById("darkToggleLabel").textContent =
-                        "☀️";
-                } else {
-                    document.documentElement.removeAttribute("data-theme");
-                    document.getElementById("darkToggleLabel").textContent =
-                        "🌙";
-                }
+                requestAnimationFrame(() => {
+                    if (APP.dark) {
+                        document.documentElement.setAttribute("data-theme", "dark");
+                        document.getElementById("darkToggleLabel").textContent = "☀️";
+                    } else {
+                        document.documentElement.removeAttribute("data-theme");
+                        document.getElementById("darkToggleLabel").textContent = "🌙";
+                    }
+                });
             }
 
             function toggleLang() {
