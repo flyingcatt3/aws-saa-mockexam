@@ -372,16 +372,6 @@
                 color: #fbbf24;
                 border-color: #92400e;
             }
-            .badge-unscored {
-                background: #f3f4f6;
-                color: #6b7280;
-                border: 1px solid #d1d5db;
-            }
-            [data-theme="dark"] .badge-unscored {
-                background: rgba(107,114,128,0.15);
-                color: #9ca3af;
-                border-color: rgba(107,114,128,0.3);
-            }
 
             /* ── Per-question Notes ── */
             .review-note-section {
@@ -755,10 +745,6 @@
                 padding: 14px 16px;
                 border-bottom: 1px solid var(--border);
                 font-size: 14px;
-                vertical-align: middle;
-            }
-            .history-table td:last-child {
-                text-align: center;
             }
 
             .history-table tr:last-child td {
@@ -1124,6 +1110,9 @@
             }
 
             .result-hero .score-circle {
+                width: 160px;
+                height: 160px;
+                border-radius: 50%;
                 margin: 0 auto 20px;
                 display: flex;
                 flex-direction: column;
@@ -1131,6 +1120,22 @@
                 justify-content: center;
                 font-size: 48px;
                 font-weight: 800;
+                position: relative;
+            }
+
+            .result-hero .score-circle::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                border-radius: 50%;
+                border: 8px solid var(--border);
+            }
+
+            .result-hero .score-circle.pass::before {
+                border-color: var(--success);
+            }
+            .result-hero .score-circle.fail::before {
+                border-color: var(--danger);
             }
 
             .result-hero .score-circle.pass {
@@ -1503,34 +1508,16 @@
             /* Delete button for history */
             .btn-delete-history {
                 background: none;
-                border: 2px solid var(--border);
+                border: none;
                 color: var(--danger);
                 cursor: pointer;
-                font-size: 13px;
-                padding: 6px 14px;
-                border-radius: 6px;
+                font-size: 16px;
+                padding: 4px 8px;
+                border-radius: 4px;
                 transition: background 0.15s;
-                line-height: 1.4;
             }
             .btn-delete-history:hover {
                 background: var(--wrong-bg);
-                border-color: var(--danger);
-            }
-
-            .history-actions {
-                display: flex;
-                gap: 4px;
-                justify-content: center;
-                align-items: stretch;
-            }
-            .history-actions .btn,
-            .history-actions .btn-delete-history {
-                flex: 1;
-                text-align: center;
-                white-space: nowrap;
-                display: flex;
-                align-items: center;
-                justify-content: center;
             }
 
             .home-btn-header {
@@ -1895,7 +1882,8 @@
             }
 
             [data-theme="dark"] .result-hero .score-circle {
-                color: inherit;
+                background: var(--card-bg);
+                border-color: var(--border);
             }
 
             [data-theme="dark"] .home-btn-header {
@@ -1950,7 +1938,7 @@
                     <h2 data-i18n="heroTitle">🎯 開始模擬考試</h2>
                     <p data-i18n="heroDesc">
                         模擬 AWS Solutions Architect Associate (SAA-C03)
-                        認證考試，題目由題庫隨機抽取。及格分數為 72%。
+                        認證考試，共有題庫可隨機出題。及格分數為 72%。
                     </p>
                     <div class="exam-config">
                         <div class="config-group">
@@ -2012,7 +2000,7 @@
                             <span data-i18n="eslLabel"
                                 >非母語應試者延長時間</span
                             >
-                            <span class="esl-badge" id="eslBadge">+30 min</span>
+                            <span class="esl-badge">+30 min</span>
                         </label>
                     </div>
                 </div>
@@ -2055,7 +2043,6 @@
                         <div class="stat-value" id="statPassRate">--</div>
                     </div>
                 </div>
-                <div id="statsNote" style="font-size:11px;color:var(--text-light);text-align:center;margin-top:6px;margin-bottom:2px;"></div>
 
                 <div class="section-title" data-i18n="sectionHistory">
                     📋 歷史考試紀錄
@@ -2120,7 +2107,7 @@
                             class="btn btn-danger btn-sm"
                             onclick="confirmSubmit()"
                         >
-                            <span id="btnSubmitLabel" data-i18n="btnEarlySubmit">📤 提前交卷</span>
+                            <span data-i18n="btnEarlySubmit">📤 提前交卷</span>
                         </button>
                     </div>
                 </div>
@@ -2362,7 +2349,7 @@
                     backHome: "◀ 返回主畫面",
                     heroTitle: "🎯 開始模擬考試",
                     heroDesc:
-                        "模擬 AWS Solutions Architect Associate (SAA-C03) 認證考試，題目由題庫隨機抽取。及格分數為 72%。",
+                        "模擬 AWS Solutions Architect Associate (SAA-C03) 認證考試，共有題庫可隨機出題。及格分數為 72%。",
                     labelQuestionCount: "題目數量",
                     labelTimeLimit: "考試時間",
                     opt15q: "15 題（快速練習）",
@@ -2393,7 +2380,7 @@
                     thAction: "操作",
                     eslLabel: "非母語應試者延長時間",
                     eslTooltip:
-                        "ESL 應試者可申請延長考試時間（與 65 題考試等比例；僅限有時間限制的考試）",
+                        "ESL 應試者可申請額外 30 分鐘作答時間（僅限有時間限制的考試）",
                     btnExportMd: "⬇️ 匯出 Markdown",
                     historyBtnExport: "⬇️ MD",
                     mdTitle: "AWS SAA-C03 模擬考試成績單",
@@ -2416,21 +2403,17 @@
                     mdStatusWrong: "答錯 ❌",
                     mdStatusUnanswered: "未作答 ⬜",
                     mdUncertainNote: "❓ 不確定（已標記）",
-                    mdUnscoredNote: "不計分題",
                     mdYourAnswer: "你的答案",
                     mdCorrectAnswer: "正確答案",
                     mdExplanation: "解析",
                     mdNoAnswer: "（未作答）",
                     mdNoExplanation: "（無解析）",
                     mdMultiSelect: "多選題，需選 {n} 個",
-                    mdEslNote: "（含 ESL 延長 {n} 分鐘）",
-                    statsNoteFilter: "* 統計僅計入計分比例及時間設定與正式考試相同的紀錄（每題 2 分鐘）",
-                    statsNoteNoStandard: "* 尚無符合正式考試比例的紀錄（需選 65 題且時間設為 130 分鐘等比例）",
+                    mdEslNote: "（含 ESL 延長 30 分鐘）",
                     questionLabel: "題目",
                     answeredCount: "（已答 {n} 題）",
                     btnOverview: "📋 題目總覽",
                     btnEarlySubmit: "📤 提前交卷",
-                    btnSubmit: "📤 交卷",
                     multiBadgeText: "請選擇 {n} 個答案",
                     btnPrev: "◀ 上一題",
                     btnNext: "下一題 ▶",
@@ -2449,7 +2432,6 @@
                     detailWrong: "答錯",
                     detailUnanswered: "未作答",
                     detailTotal: "總題數",
-                    detailScored: "計分題",
                     detailTime: "用時",
                     detailPassScore: "及格分數",
                     timeLimitNone: "不限時",
@@ -2486,7 +2468,6 @@
                     reviewBadgeUnanswered: "⬜ 未作答",
                     reviewBadgeNoAnswer: "➖ 無標準答案",
                     reviewBadgeUncertain: "❓ 不確定",
-                    reviewBadgeUnscored: "不計分",
                     reviewIndicatorCorrect: " ✓",
                     reviewIndicatorAnswer: " ← 正確答案",
                     reviewIndicatorYour: " ← 你的選擇",
@@ -2512,7 +2493,6 @@
                     historyBadgeFail: "❌ 未通過",
                     historyBtnView: "查看",
                     historyBtnExport: "⬇️ MD",
-                    historyBtnExportTooltip: "匯出 Markdown",
                     confirmDelete: "確定要刪除此考試紀錄嗎？",
                     alertNoBank: "題庫尚未載入，請稍候再試。",
                     beforeUnload: "考試正在進行中，確定要離開嗎？",
@@ -2558,7 +2538,6 @@
                     answeredCount: "({n} answered)",
                     btnOverview: "📋 Overview",
                     btnEarlySubmit: "📤 Submit Early",
-                    btnSubmit: "📤 Submit",
                     multiBadgeText: "Select {n} answers",
                     btnPrev: "◀ Previous",
                     btnNext: "Next ▶",
@@ -2577,7 +2556,6 @@
                     detailWrong: "Wrong",
                     detailUnanswered: "Unanswered",
                     detailTotal: "Total",
-                    detailScored: "Scored",
                     detailTime: "Time Spent",
                     detailPassScore: "Pass Score",
                     timeLimitNone: "No Limit",
@@ -2616,7 +2594,6 @@
                     reviewBadgeUnanswered: "⬜ Unanswered",
                     reviewBadgeNoAnswer: "➖ No Official Answer",
                     reviewBadgeUncertain: "❓ Uncertain",
-                    reviewBadgeUnscored: "Unscored",
                     reviewIndicatorCorrect: " ✓",
                     reviewIndicatorAnswer: " ← Correct Answer",
                     reviewIndicatorYour: " ← Your Choice",
@@ -2643,7 +2620,6 @@
                     historyBadgeFail: "❌ Fail",
                     historyBtnView: "View",
                     historyBtnExport: "⬇️ MD",
-                    historyBtnExportTooltip: "Export Markdown",
                     confirmDelete: "Delete this exam record?",
                     alertNoBank: "Question bank not loaded. Please wait.",
                     beforeUnload:
@@ -2652,7 +2628,7 @@
                     timeFormatMS: "{m}m {s}s",
                     eslLabel: "Non-native speaker time extension",
                     eslTooltip:
-                        "ESL candidates may request proportional extra time (same ratio as 30 min / 65 questions; only applies when a time limit is set)",
+                        "ESL candidates may apply for 30 extra minutes (only applies when a time limit is set)",
                     btnExportMd: "⬇️ Export Markdown",
                     historyBtnExport: "⬇️ MD",
                     mdTitle: "AWS SAA-C03 Mock Exam Report",
@@ -2675,16 +2651,13 @@
                     mdStatusWrong: "Wrong ❌",
                     mdStatusUnanswered: "Unanswered ⬜",
                     mdUncertainNote: "❓ Uncertain (flagged)",
-                    mdUnscoredNote: "Unscored",
                     mdYourAnswer: "Your Answer",
                     mdCorrectAnswer: "Correct Answer",
                     mdExplanation: "Explanation",
                     mdNoAnswer: "(Not answered)",
                     mdNoExplanation: "(No explanation)",
                     mdMultiSelect: "Multi-select, choose {n}",
-                    mdEslNote: "(incl. ESL +{n} min)",
-                    statsNoteFilter: "* Stats include only exams matching the official ratio (2 min/question)",
-                    statsNoteNoStandard: "* No standard-ratio exams yet (need 2 min per question and correct scored/total ratio)",
+                    mdEslNote: "(incl. ESL +30 min)",
                 },
             };
 
@@ -2854,12 +2827,6 @@
                     eslRow.style.opacity = "1";
                     eslRow.style.pointerEvents = "auto";
                 }
-                // Update badge to show proportional bonus for current question count
-                const rawCount = parseInt(document.getElementById("cfgQuestionCount").value) || 65;
-                const count = (rawCount === 0 || rawCount > QUESTION_BANK.length) ? QUESTION_BANK.length : rawCount;
-                const bonus = Math.round(count * 30 / 65);
-                const badge = document.getElementById("eslBadge");
-                if (badge) badge.textContent = `+${bonus} min`;
             }
 
             // ============================================================
@@ -2887,9 +2854,6 @@
                 // Attach ESL toggle listener
                 document
                     .getElementById("cfgTimeLimit")
-                    .addEventListener("change", updateEslRow);
-                document
-                    .getElementById("cfgQuestionCount")
                     .addEventListener("change", updateEslRow);
                 updateEslRow();
 
@@ -2982,23 +2946,11 @@
             // ============================================================
             // DASHBOARD
             // ============================================================
-            // A "standard ratio exam" matches the real AWS SAA-C03 format:
-            // scored/total = 50/65, time/question = 2 min (130 min / 65 q).
-            // ESL extension is intentionally excluded from this check.
-            function isStandardRatioExam(h) {
-                const expectedScored = Math.round(h.totalQuestions * 50 / 65);
-                const scoredOk = (h.scoredCount || 0) === expectedScored;
-                const expectedTime = h.totalQuestions * 2; // 130/65 = 2 min/q
-                const timeOk = h.baseTimeLimit > 0 && h.baseTimeLimit === expectedTime;
-                return scoredOk && timeOk;
-            }
-
             function renderDashboard() {
                 const history = APP.history;
-                const stdHistory = history.filter(isStandardRatioExam);
-                const totalExams = stdHistory.length;
-                const passed = stdHistory.filter((h) => h.passed).length;
-                const scores = stdHistory.map((h) => h.score);
+                const totalExams = history.length;
+                const passed = history.filter((h) => h.passed).length;
+                const scores = history.map((h) => h.score);
                 const best = scores.length ? Math.max(...scores) : null;
                 const avg = scores.length
                     ? scores.reduce((a, b) => a + b, 0) / scores.length
@@ -3025,14 +2977,6 @@
                 if (QUESTION_BANK.length > 0) {
                     document.getElementById("statTotal").textContent =
                         QUESTION_BANK.length;
-                }
-
-                // Show note explaining the standard-exam filter
-                const noteEl = document.getElementById("statsNote");
-                if (noteEl) {
-                    noteEl.textContent = history.length > 0 && totalExams === 0
-                        ? t("statsNoteNoStandard")
-                        : t("statsNoteFilter");
                 }
 
                 renderHistory();
@@ -3088,11 +3032,9 @@
       <td><strong>${h.score.toFixed(1)}%</strong></td>
       <td><span class="badge ${badgeClass}">${badgeText}</span></td>
       <td>
-        <div class="history-actions">
-          <button class="btn btn-outline btn-sm" onclick="viewExamHistory('${h.id}')">${t("historyBtnView")}</button>
-          <button class="btn btn-outline btn-sm" onclick="exportHistoryItemMd('${h.id}')" title="${t('historyBtnExportTooltip')}">${t("historyBtnExport")}</button>
-          <button class="btn-delete-history" onclick="deleteExamHistory('${h.id}')" title="${t('confirmDelete')}">🗑️</button>
-        </div>
+        <button class="btn btn-outline btn-sm" onclick="viewExamHistory('${h.id}')">${t("historyBtnView")}</button>
+        <button class="btn-export-md" onclick="exportHistoryItemMd('${h.id}')" title="Export Markdown">${t("historyBtnExport")}</button>
+        <button class="btn-delete-history" onclick="deleteExamHistory('${h.id}')" title="🗑️">🗑️</button>
       </td>
     </tr>`;
                     })
@@ -3135,8 +3077,8 @@
                 if (count === 0 || count > QUESTION_BANK.length)
                     count = QUESTION_BANK.length;
 
-                // ESL proportional time extension (same ratio as 30 min / 65 questions)
-                const eslBonus = eslChecked ? Math.round(count * 30 / 65) : 0;
+                // ESL +30 min accommodation
+                const eslBonus = eslChecked ? 30 : 0;
                 const effectiveTimeLimit =
                     timeLimit > 0 ? timeLimit + eslBonus : 0;
 
@@ -3146,48 +3088,12 @@
                 );
                 const selected = shuffled.slice(0, count);
 
-                // Rebalance: ensure exactly (count - 50) unscored questions when count > 50.
-                // No-answer questions are always unscored; if more unscored needed, randomly
-                // designate some scored questions as unscored; if too many no-answer questions,
-                // replace excess with has-answer questions from the bank.
-                const UNSCORED_TARGET = Math.round(count * 15 / 65);
-                const unscoredFlags = new Array(count).fill(false);
-                if (UNSCORED_TARGET > 0) {
-                    const noAnswerIdx = [], hasAnswerIdx = [];
-                    selected.forEach((q, i) => {
-                        (q.correctAnswers && q.correctAnswers.length > 0 ? hasAnswerIdx : noAnswerIdx).push(i);
-                    });
-                    if (noAnswerIdx.length > UNSCORED_TARGET) {
-                        // Too many no-answer questions → replace excess with has-answer ones from bank
-                        const excess = noAnswerIdx.length - UNSCORED_TARGET;
-                        const toReplace = [...noAnswerIdx].sort(() => Math.random() - 0.5).slice(0, excess);
-                        const selectedIds = new Set(selected.map(q => q.id));
-                        const replacements = QUESTION_BANK
-                            .filter(q => q.correctAnswers && q.correctAnswers.length > 0 && !selectedIds.has(q.id))
-                            .sort(() => Math.random() - 0.5);
-                        toReplace.forEach((idx, j) => {
-                            if (j < replacements.length) selected[idx] = replacements[j];
-                        });
-                        // Mark remaining no-answer questions as unscored
-                        selected.forEach((q, i) => {
-                            unscoredFlags[i] = !q.correctAnswers || q.correctAnswers.length === 0;
-                        });
-                    } else {
-                        // Mark all no-answer as unscored, then randomly designate more if needed
-                        noAnswerIdx.forEach(i => { unscoredFlags[i] = true; });
-                        const needed = UNSCORED_TARGET - noAnswerIdx.length;
-                        [...hasAnswerIdx].sort(() => Math.random() - 0.5).slice(0, needed)
-                            .forEach(i => { unscoredFlags[i] = true; });
-                    }
-                }
-
                 APP.exam = {
                     id: "exam_" + Date.now(),
                     active: true,
                     questions: selected,
                     answers: new Array(count).fill(null), // array of arrays
                     uncertainFlags: new Array(count).fill(false),
-                    unscoredFlags: unscoredFlags,
                     currentIndex: 0,
                     timeLimit: effectiveTimeLimit * 60, // seconds
                     timeRemaining: effectiveTimeLimit * 60,
@@ -3199,14 +3105,6 @@
 
                 renderExamQuestion();
                 showView("viewExam");
-
-                // Update submit button label based on whether time limit is set
-                const submitLabel = document.getElementById("btnSubmitLabel");
-                if (submitLabel) {
-                    const key = timeLimit > 0 ? "btnEarlySubmit" : "btnSubmit";
-                    submitLabel.textContent = t(key);
-                    submitLabel.dataset.i18n = key;
-                }
 
                 if (timeLimit > 0) {
                     startTimer();
@@ -3507,27 +3405,21 @@
 
                 exam.questions.forEach((q, i) => {
                     const userAns = exam.answers[i] || [];
-                    // Always use the latest correctAnswers from QUESTION_BANK so
-                    // manual answer corrections are reflected in past results too.
-                    const liveQ = QUESTION_BANK.find(bq => bq.id === q.id);
-                    const correctAns = (liveQ ? liveQ.correctAnswers : q.correctAnswers) || [];
-                    const isUnscored = exam.unscoredFlags ? !!exam.unscoredFlags[i] : false;
+                    const correctAns = q.correctAnswers || [];
                     const isCorrect =
                         correctAns.length > 0 &&
                         userAns.length === correctAns.length &&
                         [...userAns].sort().join(",") ===
                             [...correctAns].sort().join(",");
 
-                    if (!isUnscored) {
-                        if (userAns.length === 0) {
-                            unanswered++;
-                        } else if (correctAns.length === 0) {
-                            // no standard answer — not counted as wrong or correct
-                        } else if (isCorrect) {
-                            correct++;
-                        } else {
-                            wrong++;
-                        }
+                    if (userAns.length === 0) {
+                        unanswered++;
+                    } else if (correctAns.length === 0) {
+                        // no standard answer — not counted as wrong or correct
+                    } else if (isCorrect) {
+                        correct++;
+                    } else {
+                        wrong++;
                     }
 
                     details.push({
@@ -3540,17 +3432,13 @@
                         isUnanswered: userAns.length === 0,
                         hasNoAnswer: correctAns.length === 0,
                         isUncertain: exam.uncertainFlags ? !!exam.uncertainFlags[i] : false,
-                        isUnscored: isUnscored,
                         explanation: q.explanation || "",
                         numChoices: q.numChoices,
                     });
                 });
 
                 const totalQuestions = exam.totalQuestions;
-                const scoredCount = exam.unscoredFlags
-                    ? exam.unscoredFlags.filter(f => !f).length
-                    : totalQuestions;
-                const score = scoredCount > 0 ? (correct / scoredCount) * 100 : 0;
+                const score = (correct / totalQuestions) * 100;
                 const passed = score >= 72;
                 const timeSpent =
                     exam.timeLimit > 0
@@ -3561,7 +3449,6 @@
                     id: exam.id,
                     date: new Date().toISOString(),
                     totalQuestions,
-                    scoredCount,
                     correct,
                     wrong,
                     unanswered,
@@ -3627,11 +3514,6 @@
       <div class="label">${t("detailTotal")}</div>
       <div class="value">${result.totalQuestions}</div>
     </div>
-    ${result.scoredCount && result.scoredCount < result.totalQuestions ? `
-    <div class="detail-item">
-      <div class="label">${t("detailScored")}</div>
-      <div class="value">${result.scoredCount}</div>
-    </div>` : ""}
     <div class="detail-item">
       <div class="label">${t("detailTime")}</div>
       <div class="value">${timeStr}${eslNote}</div>
@@ -3649,22 +3531,7 @@
             function renderReviewList(details, filter) {
                 const list = document.getElementById("reviewList");
 
-                const filtered = details.map(d => {
-                    // Always reflect the latest correctAnswers from QUESTION_BANK
-                    const liveQ = QUESTION_BANK.find(bq => bq.id === d.questionId);
-                    if (liveQ) {
-                        d.correctAnswers = liveQ.correctAnswers || [];
-                        d.hasNoAnswer = d.correctAnswers.length === 0;
-                        d.isCorrect = d.correctAnswers.length > 0 &&
-                            d.userAnswers.length === d.correctAnswers.length &&
-                            [...d.userAnswers].sort().join(",") === [...d.correctAnswers].sort().join(",");
-                    } else {
-                        // Question no longer in bank — preserve stored data with safe defaults
-                        d.correctAnswers = d.correctAnswers || [];
-                        d.hasNoAnswer = d.correctAnswers.length === 0;
-                    }
-                    return d;
-                }).filter((d) => {
+                const filtered = details.filter((d) => {
                     if (filter === "all") return true;
                     if (filter === "correct") return d.isCorrect;
                     if (filter === "wrong")
@@ -3710,9 +3577,6 @@
                         if (d.isUncertain) {
                             itemClass += " uncertain-item";
                             statusBadge += ` <span class="badge badge-uncertain">${t("reviewBadgeUncertain")}</span>`;
-                        }
-                        if (d.isUnscored) {
-                            statusBadge += ` <span class="badge badge-unscored">${t("reviewBadgeUnscored")}</span>`;
                         }
                         const isBookmarked = bookmarkedQId !== null && String(bookmarkedQId) === String(d.questionId);
                         if (isBookmarked) itemClass += " bookmarked-item";
@@ -3827,8 +3691,7 @@
                     result.timeLimit > 0
                         ? formatTime(result.timeLimit)
                         : t("mdTimeLimitNone");
-                const eslBonusMin = result.eslUsed ? Math.round(result.totalQuestions * 30 / 65) : 0;
-                const eslLine = result.eslUsed ? ` ${t("mdEslNote", { n: eslBonusMin })}` : "";
+                const eslLine = result.eslUsed ? ` ${t("mdEslNote")}` : "";
 
                 let md = [];
 
@@ -3877,12 +3740,9 @@
                     const uncertainNote = d.isUncertain
                         ? ` **${t("mdUncertainNote")}**`
                         : "";
-                    const unscoredNote = d.isUnscored
-                        ? ` _(${t("mdUnscoredNote")})_`
-                        : "";
 
                     md.push(
-                        `### Q${i + 1}. Question #${d.questionId}${multiNote}${unscoredNote}`,
+                        `### Q${i + 1}. Question #${d.questionId}${multiNote}`,
                     );
                     md.push(``);
                     md.push(`> ${d.question.replace(/\n/g, "\n> ")}`);
@@ -4142,7 +4002,6 @@
                         id: h.id,
                         date: h.date,
                         totalQuestions: h.totalQuestions,
-                        scoredCount: h.scoredCount || h.totalQuestions,
                         correct: h.correct,
                         wrong: h.wrong,
                         unanswered: h.unanswered,
@@ -4185,35 +4044,7 @@
                 try {
                     const data = localStorage.getItem("aws_saa_history");
                     if (data) {
-                        APP.history = JSON.parse(data).map(h => {
-                            // Migrate missing baseTimeLimit (records saved before this field existed).
-                            // If ESL was not used, baseTimeLimit equals timeLimit.
-                            // If ESL was used, subtract the legacy fixed 30-min bonus.
-                            if (!h.baseTimeLimit && h.timeLimit) {
-                                // h.timeLimit is stored in seconds; convert to minutes for comparison
-                                const baseMins = h.eslUsed
-                                    ? Math.max(0, Math.round(h.timeLimit / 60) - Math.round((h.totalQuestions || 65) * 30 / 65))
-                                    : Math.round(h.timeLimit / 60);
-                                h.baseTimeLimit = baseMins;
-                            }
-                            // Migrate old records that were scored with the legacy formula.
-                            // Retroactively apply proportional scoring (50/65 ratio) to all modes.
-                            if (!h.scoredCount && h.details) {
-                                const scoredCount = Math.round(h.totalQuestions * 50 / 65);
-                                const rawCorrect = h.details.filter(d => !d.hasNoAnswer && d.isCorrect).length;
-                                // Cap correct at scoredCount to prevent score > 100%
-                                const newCorrect = Math.min(rawCorrect, scoredCount);
-                                const newWrong = h.details.filter(d => !d.hasNoAnswer && !d.isUnanswered && !d.isCorrect).length;
-                                const newUnanswered = h.details.filter(d => !d.hasNoAnswer && d.isUnanswered).length;
-                                h.scoredCount = scoredCount;
-                                h.correct = newCorrect;
-                                h.wrong = newWrong;
-                                h.unanswered = newUnanswered;
-                                h.score = scoredCount > 0 ? (newCorrect / scoredCount) * 100 : 0;
-                                h.passed = h.score >= 72;
-                            }
-                            return h;
-                        });
+                        APP.history = JSON.parse(data);
                     }
                 } catch (e) {
                     console.warn("Failed to load history:", e);
