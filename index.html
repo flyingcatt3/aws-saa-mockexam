@@ -4,6 +4,15 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>AWS SAA-C03 模擬考系統</title>
+        <!-- Apply dark mode before first paint to prevent flash -->
+        <script>
+            (function () {
+                var d = localStorage.getItem("aws_dark");
+                if (d === "1" || (d === null && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+                    document.documentElement.setAttribute("data-theme", "dark");
+                }
+            })();
+        </script>
         <style>
             :root {
                 --primary: #232f3e;
@@ -2714,6 +2723,25 @@
 
                 // Set ESL tooltip from i18n (done after loadPreferences sets lang)
                 document.getElementById("eslLabel").title = t("eslTooltip");
+
+                // Restore last view if user was on result page before reload
+                try {
+                    if (sessionStorage.getItem("aws_view") === "viewResult") {
+                        var savedId = sessionStorage.getItem("aws_reviewing_id");
+                        var restoredResult = null;
+                        if (savedId) {
+                            restoredResult = APP.history.find((h) => h.id === savedId);
+                            if (restoredResult) APP.reviewingExamId = savedId;
+                        }
+                        if (!restoredResult && APP.history.length > 0) {
+                            restoredResult = APP.history[APP.history.length - 1];
+                        }
+                        if (restoredResult) {
+                            renderResultView(restoredResult);
+                            showView("viewResult");
+                        }
+                    }
+                } catch (e) {}
             }
 
             // ============================================================
@@ -2740,6 +2768,16 @@
                     homeBtn.style.display = "flex";
                     timerC.style.display = "none";
                 }
+
+                // Persist view so reload can restore it (only viewResult is restorable)
+                try {
+                    if (viewId === "viewResult") {
+                        sessionStorage.setItem("aws_view", "viewResult");
+                        sessionStorage.setItem("aws_reviewing_id", APP.reviewingExamId || "");
+                    } else {
+                        sessionStorage.removeItem("aws_view");
+                    }
+                } catch (e) {}
 
                 window.scrollTo(0, 0);
             }
